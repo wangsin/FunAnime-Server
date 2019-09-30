@@ -1,10 +1,10 @@
 package conf
 
 import (
-	"os"
 	"FunAnime-Server/cache"
 	"FunAnime-Server/model"
 	"FunAnime-Server/util"
+	"os"
 
 	"github.com/joho/godotenv"
 )

@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"os"
 	"FunAnime-Server/util"
+	"os"
 	"strconv"
 
 	"github.com/go-redis/redis"

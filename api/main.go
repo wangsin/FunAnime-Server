@@ -1,11 +1,11 @@
 package api
 
 import (
-	"encoding/json"
-	"fmt"
 	"FunAnime-Server/conf"
 	"FunAnime-Server/model"
 	"FunAnime-Server/serializer"
+	"encoding/json"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	validator "gopkg.in/go-playground/validator.v8"
