@@ -1,6 +1,6 @@
 package serializer
 
-import "singo/model"
+import "FunAnime-Server/model"
 
 // User 用户序列化器
 type User struct {

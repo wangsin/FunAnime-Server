@@ -1,8 +1,8 @@
 package api
 
 import (
-	"singo/serializer"
-	"singo/service"
+	"FunAnime-Server/serializer"
+	"FunAnime-Server/service"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

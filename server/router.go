@@ -1,9 +1,9 @@
 package server
 
 import (
+	"FunAnime-Server/api"
+	"FunAnime-Server/middleware"
 	"os"
-	"singo/api"
-	"singo/middleware"
 
 	"github.com/gin-gonic/gin"
 )

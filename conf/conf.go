@@ -2,9 +2,9 @@ package conf
 
 import (
 	"os"
-	"singo/cache"
-	"singo/model"
-	"singo/util"
+	"FunAnime-Server/cache"
+	"FunAnime-Server/model"
+	"FunAnime-Server/util"
 
 	"github.com/joho/godotenv"
 )

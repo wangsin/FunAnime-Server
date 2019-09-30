@@ -1,4 +1,4 @@
-module singo
+module FunAnime-Server
 
 go 1.12
 

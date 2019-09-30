@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"singo/model"
-	"singo/serializer"
+	"FunAnime-Server/model"
+	"FunAnime-Server/serializer"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"singo/conf"
-	"singo/model"
-	"singo/serializer"
+	"FunAnime-Server/conf"
+	"FunAnime-Server/model"
+	"FunAnime-Server/serializer"
 
 	"github.com/gin-gonic/gin"
 	validator "gopkg.in/go-playground/validator.v8"

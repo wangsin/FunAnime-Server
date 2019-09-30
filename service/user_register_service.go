@@ -1,8 +1,8 @@
 package service
 
 import (
-	"singo/model"
-	"singo/serializer"
+	"FunAnime-Server/model"
+	"FunAnime-Server/serializer"
 )
 
 // UserRegisterService 管理用户注册服务

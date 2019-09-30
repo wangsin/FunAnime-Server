@@ -1,7 +1,7 @@
 package model
 
 import (
-	"singo/util"
+	"FunAnime-Server/util"
 	"time"
 
 	"github.com/jinzhu/gorm"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"singo/conf"
-	"singo/server"
+	"FunAnime-Server/conf"
+	"FunAnime-Server/server"
 )
 
 func main() {
