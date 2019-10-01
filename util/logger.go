@@ -1,106 +1,116 @@
 package util
 
 import (
+	"FunAnime-Server/model"
 	"fmt"
-	"os"
 	"time"
 )
 
+// TODO:写入日志文件
+
 const (
-	// LevelError 错误
-	LevelError = iota
-	// LevelWarning 警告
-	LevelWarning
-	// LevelInformational 提示
-	LevelInformational
-	// LevelDebug 除错
-	LevelDebug
+	LogRequest  = 1
+	LogResponse = 2
+	LogDatabase = 3
+	LogClassic  = 4
+
+	LogInfo    = 10
+	LogWarning = 20
+	LogError   = 30
+	LogPanic   = 40
 )
 
-var logger *Logger
-
-// Logger 日志
-type Logger struct {
-	level int
+var levelMap = map[int]string{
+	LogInfo:    "INFO",
+	LogWarning: "WARNING",
+	LogError:   "ERROR",
+	LogPanic:   "PANIC",
 }
 
-// Println 打印
-func (ll *Logger) Println(msg string) {
-	fmt.Printf("%s %s", time.Now().Format("2006-01-02 15:04:05 -0700"), msg)
+var typeMap = map[int]string{
+	LogRequest:  "Request",
+	LogResponse: "Response",
+	LogDatabase: "Database",
+	LogClassic:  "Classic",
 }
 
-// Panic 极端错误
-func (ll *Logger) Panic(format string, v ...interface{}) {
-	if LevelError > ll.level {
-		return
-	}
-	msg := fmt.Sprintf("[Panic] "+format, v...)
-	ll.Println(msg)
-	os.Exit(0)
+type logger struct {
+	level     int // 错误等级
+	forType   int // 日志位置
+	logTime   time.Time // 时间
+	errno     int64  // 错误码
+	message   string // 日志信息
+	extraInfo string // 额外信息
 }
 
-// Error 错误
-func (ll *Logger) Error(format string, v ...interface{}) {
-	if LevelError > ll.level {
-		return
-	}
-	msg := fmt.Sprintf("[E] "+format, v...)
-	ll.Println(msg)
+func (lg *logger) Println() {
+	fmt.Printf("[%s]|time=%v|errno=%d|forType=%d|msg=%s|extraInfo=%s", levelMap[lg.level], lg.logTime, lg.errno, typeMap[lg.forType], lg.message, lg.extraInfo)
 }
 
-// Warning 警告
-func (ll *Logger) Warning(format string, v ...interface{}) {
-	if LevelWarning > ll.level {
-		return
+func (lg *logger) SaveToDatabase() {
+	traceId, _ := model.SaveLogInfo(&model.Log{
+		Level:     lg.level,
+		ForType:   lg.forType,
+		LogTime:   lg.logTime,
+		Errno:     lg.errno,
+		Message:   lg.message,
+		ExtraInfo: lg.extraInfo,
+	})
+	if lg.level > LogInfo {
+		fmt.Printf("|trace_id=%d\n", traceId)
+	} else {
+		fmt.Printf("|\n")
 	}
-	msg := fmt.Sprintf("[W] "+format, v...)
-	ll.Println(msg)
 }
 
-// Info 信息
-func (ll *Logger) Info(format string, v ...interface{}) {
-	if LevelInformational > ll.level {
-		return
+func Infof(forType int, errno int64, message string, args ...interface{}) {
+	logInfo := logger{
+		level:   LogInfo,
+		logTime: time.Now(),
+		forType: forType,
+		errno:   errno,
+		message: fmt.Sprintf(message, args),
 	}
-	msg := fmt.Sprintf("[I] "+format, v...)
-	ll.Println(msg)
+
+	logInfo.Println()
+	logInfo.SaveToDatabase()
 }
 
-// Debug 校验
-func (ll *Logger) Debug(format string, v ...interface{}) {
-	if LevelDebug > ll.level {
-		return
+func Warnf(forType int, errno int64, message string, args ...interface{}) {
+	logInfo := logger{
+		level:   LogWarning,
+		logTime: time.Now(),
+		forType: forType,
+		errno:   errno,
+		message: fmt.Sprintf(message, args),
 	}
-	msg := fmt.Sprintf("[D] "+format, v...)
-	ll.Println(msg)
+
+	logInfo.Println()
+	logInfo.SaveToDatabase()
 }
 
-// BuildLogger 构建logger
-func BuildLogger(level string) {
-	intLevel := LevelError
-	switch level {
-	case "error":
-		intLevel = LevelError
-	case "warning":
-		intLevel = LevelWarning
-	case "info":
-		intLevel = LevelInformational
-	case "debug":
-		intLevel = LevelDebug
+func Errnof(forType int, errno int64, message string, args ...interface{}) {
+	logInfo := logger{
+		level:   LogError,
+		logTime: time.Now(),
+		forType: forType,
+		errno:   errno,
+		message: fmt.Sprintf(message, args),
 	}
-	l := Logger{
-		level: intLevel,
-	}
-	logger = &l
+
+	logInfo.Println()
+	logInfo.SaveToDatabase()
 }
 
-// Log 返回日志对象
-func Log() *Logger {
-	if logger == nil {
-		l := Logger{
-			level: LevelDebug,
-		}
-		logger = &l
+func Panicf(forType int, errno int64, message string, args ...interface{}) {
+	logInfo := logger{
+		level:   LogPanic,
+		logTime: time.Now(),
+		forType: forType,
+		errno:   errno,
+		message: fmt.Sprintf(message, args),
 	}
-	return logger
+
+	logInfo.Println()
+	logInfo.SaveToDatabase()
 }

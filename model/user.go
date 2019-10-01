@@ -8,6 +8,7 @@ import (
 // User 用户模型
 type User struct {
 	gorm.Model
+	Id             int64 `gorm:"column:id;PRIMARY_KEY;AUTO_INCREMENT"`
 	UserName       string
 	PasswordDigest string
 	Nickname       string

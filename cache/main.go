@@ -23,7 +23,8 @@ func Redis() {
 	_, err := client.Ping().Result()
 
 	if err != nil {
-		util.Log().Panic("连接Redis不成功", err)
+		// todo:干掉错误代码
+		util.Errnof(util.LogDatabase, -200001,"no_db_connection_at_init")
 	}
 
 	RedisClient = client
