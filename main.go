@@ -1,8 +1,15 @@
 package main
 
-import "sinblog.cn/FunAnime-Server/router"
+import (
+	"fmt"
+	"sinblog.cn/FunAnime-Server/router"
+)
 
 func main() {
 	initHandler()
-	_ = router.NewRouter().Run(":8080")
+	err := router.NewRouter().Run(":8080")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 }
