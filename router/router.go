@@ -3,44 +3,29 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"sinblog.cn/FunAnime-Server/controller"
+	"github.com/spf13/viper"
 )
 
-type RouterArr struct {
-	Routers []*gin.Engine
-}
+func NewRouter() *gin.Engine {
+	r := gin.Default()
+	host := viper.GetString("mysql_main.host")
+	database := viper.GetString("mysql_main.database")
+	user := viper.GetString("mysql_main.user")
+	password := viper.GetString("mysql_main.password")
 
-var TotalRouter *RouterArr
-
-func (tr *RouterArr) TestRouter() {
-	testR := gin.New()
-	testR.GET("/test/ping", controller.TestController)
-
-	tr.Routers = append(tr.Routers, testR)
-}
-
-func (tr *RouterArr) PingRouter() {
-	pingR := gin.New()
-	pingR.GET("/test2/ping", controller.TestController)
-
-	tr.Routers = append(tr.Routers, pingR)
-}
-
-func Init() {
-	routerArr := make([]*gin.Engine, 0)
-	TotalRouter = &RouterArr{
-		Routers: routerArr,
+	testGroup := r.Group("/v1/test")
+	testGroup.Use(func(c *gin.Context) {
+		fmt.Println("This Is Middleware Func 1")
+	})
+	{
+		testGroup.GET("/ping", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"user-agent": c.GetHeader("user-agent"),
+				"develop-environment": viper.GetString("dev.type"),
+				"mysql-connection-url": fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, password, host, database),
+			})
+		})
 	}
 
-	TotalRouter.TestRouter()
-	TotalRouter.PingRouter()
-}
-
-func Run() {
-	for _, v := range TotalRouter.Routers {
-		err := v.Run(":8080")
-		if err != nil {
-			panic(fmt.Errorf("Router Run Error, Message: %s\n", err.Error()))
-		}
-	}
+	return r
 }
