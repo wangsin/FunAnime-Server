@@ -1,0 +1,17 @@
+[dev]
+type = "conf/DEV"
+
+[mysql_main]
+host = "127.0.0.1:3306"
+database = "fun_anime_server"
+user = "root"
+password = "123456"
+
+#[mysql_passport]
+#host = "http://127.0.0.1:3306"
+#database = "fun_anime_server"
+#user = "root"
+#password = "123456"
+
+[redis]
+host = "127.0.0.1:6379"
