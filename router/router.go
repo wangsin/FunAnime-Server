@@ -8,8 +8,6 @@ import (
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
-	// 记得添加兜底recover
-
 	testGroup := r.Group("/v1/test")
 	{
 		testGroup.GET("/ping", controller.TestController)

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +16,6 @@ func (r *RequestInfo) BindRequest(c *gin.Context) error {
 }
 
 func (r *RequestInfo) CheckRequest() bool {
-	fmt.Println(*r)
 	if r.Password == "" {
 		return false
 	} else {

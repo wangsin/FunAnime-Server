@@ -6,4 +6,5 @@ const ParamsError = -200000
 
 var ErrmsgMap = map[int64]string{
 	ParamsError: "参数错误",
+	Success:     "success",
 }
