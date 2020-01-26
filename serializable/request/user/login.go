@@ -4,18 +4,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RequestInfo struct {
+type LoginRequestInfo struct {
 	Phone    string `form:"phone" json:"phone"`
 	Mail     string `form:"mail" json:"mail"`
 	Username string `form:"username" json:"username"`
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-func (r *RequestInfo) BindRequest(c *gin.Context) error {
+func (r *LoginRequestInfo) BindRequest(c *gin.Context) error {
 	return c.Bind(r)
 }
 
-func (r *RequestInfo) CheckRequest() bool {
+func (r *LoginRequestInfo) CheckRequest() bool {
 	if r.Password == "" {
 		return false
 	} else {

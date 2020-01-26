@@ -8,14 +8,16 @@ import (
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
-	testGroup := r.Group("/v1/test")
+	v1Group := r.Group("/v1")
+	testGroup := v1Group.Group("/test")
 	{
 		testGroup.GET("/ping", controller.TestController)
 	}
 
-	userGroup := r.Group("/v1/user")
+	userGroup := v1Group.Group("/user")
 	{
-		userGroup.POST("/register", )
+		userGroup.POST("/register", controller.UserRegister)
+		userGroup.POST("/smsCode", )
 		userGroup.POST("/login", controller.UserLogin)
 		userAuthGroup := userGroup.Group("")
 		userAuthGroup.Use(token.UserAuth())

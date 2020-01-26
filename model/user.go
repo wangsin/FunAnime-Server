@@ -6,6 +6,13 @@ import (
 
 const UserTableName = "fa_user"
 
+const (
+	UserDeleted = iota - 1
+	UserAvailable
+	UserNotActive
+	UserBanned
+)
+
 type User struct {
 	Id                int64     `gorm:"column:id;AUTO_INCREMENT;PRIMARY_KEY"`
 	Username          string    `gorm:"column:user_name;UNIQUE"`
@@ -17,9 +24,12 @@ type User struct {
 	CollectionId      string    `gorm:"column:collection_id"`
 	HistoryId         int64     `gorm:"column:history_id;UNIQUE"`
 	Level             int       `gorm:"column:level"`
-	UnEditFlag        int       `gorm:"column:username_edit_flag"`
-	Birthday          time.Time `gorm:"column:birthday"`
 	Mail              string    `gorm:"column:mail;UNIQUE"`
+	Birthday          time.Time `gorm:"column:birthday"`
+	Avatar            string    `gorm:"column:avatar;size:1000"`
+	Status            int       `gorm:"column:status"`
+	CreateTime        time.Time `gorm:"column:create_time"`
+	ModifyTime        time.Time `gorm:"column:modify_time"`
 }
 
 func (u User) TableName() string {
@@ -27,39 +37,51 @@ func (u User) TableName() string {
 }
 
 func CreateUserWithInstance(u *User) (int64, error) {
-	db, err := GetDBConnection()
-	if err != nil || db == nil {
-		// todo：添加日志功能后记得添加日志
-		return 0, err
+	if DB == nil || DB.Error != nil {
+		return 0, DB.Error
 	}
-	db.Debug().Table(UserTableName).Create(u)
-	return u.Id, db.Error
+	DB.Debug().Table(UserTableName).Create(u)
+	return u.Id, DB.Error
 }
 
-func QueryUserWithWhereMap(where map[string]interface{}, whereText []string) ([]*User, int64, error) {
-	db, err := GetDBConnection()
-	if err != nil || db == nil {
-		// todo：添加日志功能后记得添加日志
-		return nil, 0, err
+func QueryUserWithWhereMap(where, whereText map[string]interface{}) ([]*User, int64, error) {
+	if DB == nil || DB.Error != nil {
+		return nil, 0, DB.Error
 	}
 	var count int64
 	var userList []*User
-	db.Debug().Table(UserTableName).Where(where)
-	for _, wText := range whereText {
-		db.Where(wText)
+	DB.Debug().Table(UserTableName).Where(where)
+	for wKey, wText := range whereText {
+		DB.Where(wKey, wText)
 	}
-	db.Count(&count)
-	db.Find(userList)
-	return userList, count, db.Error
+	DB.Count(&count)
+	DB.Find(userList)
+	return userList, count, DB.Error
 }
 
 func QueryUserWithId(userId int64) (*User, error) {
-	db, err := GetDBConnection()
-	if err != nil || db == nil {
-		// todo：添加日志功能后记得添加日志
-		return nil, err
+	if DB == nil || DB.Error != nil {
+		return nil, DB.Error
 	}
 	var userInfo *User
-	db.Debug().Table(UserTableName).Where("id = ?", userId).Find(userInfo)
-	return userInfo, db.Error
+	DB.Debug().Table(UserTableName).Where("id = ?", userId).Find(userInfo)
+	return userInfo, DB.Error
+}
+
+func UpdateUserWithId(userId int64, updateMap map[string]interface{}) error {
+	if DB == nil || DB.Error != nil {
+		return DB.Error
+	}
+	return DB.Debug().Table(UserTableName).Where("id = ?", userId).Update(updateMap).Error
+}
+
+func UpdateUserWithMap(updateMap, where, whereText map[string]interface{}) (int64, error) {
+	if DB == nil || DB.Error != nil {
+		return 0, DB.Error
+	}
+	for wKey, wText := range whereText {
+		DB.Where(wKey, wText)
+	}
+	db := DB.Debug().Table(UserTableName).Where(where).Update(updateMap)
+	return db.RowsAffected, db.Error
 }
