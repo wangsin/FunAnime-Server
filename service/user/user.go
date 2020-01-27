@@ -4,9 +4,10 @@ import (
 	"github.com/jinzhu/gorm"
 	"sinblog.cn/FunAnime-Server/model"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
+	"sinblog.cn/FunAnime-Server/util/errno"
 )
 
-func RegisterUser(userRequest user.RegisterRequestInfo) error {
+func RegisterUser(userRequest user.RegisterRequestInfo) int64 {
 	_, userCount, err := model.QueryUserWithWhereMap(
 		map[string]interface{}{
 			"phone": userRequest.Phone,
@@ -15,12 +16,14 @@ func RegisterUser(userRequest user.RegisterRequestInfo) error {
 			"status <> ?": model.UserDeleted,
 		},
 	)
+
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return err
+		return errno.DBOpError
 	}
 
 	if userCount != 0 && err != gorm.ErrRecordNotFound {
-
+		return errno.PhoneHasResisted
 	}
+
 
 }
