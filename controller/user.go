@@ -2,7 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
+	serviceUser "sinblog.cn/FunAnime-Server/service/user"
 	"sinblog.cn/FunAnime-Server/util/common"
 	"sinblog.cn/FunAnime-Server/util/errno"
 )
@@ -32,6 +34,8 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	common.EchoSuccessJson(ctx, map[string]interface{}{})
+	errNo := serviceUser.RegisterUser(registerRequest)
+
+	common.EchoJson(ctx, http.StatusOK, errNo, nil)
 	return
 }

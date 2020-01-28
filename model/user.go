@@ -13,18 +13,26 @@ const (
 	UserBanned
 )
 
+const (
+	Male = iota + 1
+	Female
+	Hide
+	NotCommit
+)
+
 type User struct {
 	Id                int64     `gorm:"column:id;AUTO_INCREMENT;PRIMARY_KEY"`
 	Username          string    `gorm:"column:user_name;UNIQUE"`
 	Nickname          string    `gorm:"column:nick_name"`
 	Password          string    `gorm:"column:password"`
-	Phone             string    `gorm:"column:phone;UNIQUE"`
+	Phone             string    `gorm:"column:phone"`
 	Sex               int8      `gorm:"column:sex"`
 	DefaultCollection int64     `gorm:"column:default_collection_id;UNIQUE"`
 	CollectionId      string    `gorm:"column:collection_id"`
 	HistoryId         int64     `gorm:"column:history_id;UNIQUE"`
 	Level             int       `gorm:"column:level"`
-	Mail              string    `gorm:"column:mail;UNIQUE"`
+	ExpCount          int64     `gorm:"column:exp"`
+	Mail              string    `gorm:"column:mail"`
 	Birthday          time.Time `gorm:"column:birthday"`
 	Avatar            string    `gorm:"column:avatar;size:1000"`
 	Status            int       `gorm:"column:status"`
@@ -55,7 +63,7 @@ func QueryUserWithWhereMap(where, whereText map[string]interface{}) ([]*User, in
 		DB.Where(wKey, wText)
 	}
 	DB.Count(&count)
-	DB.Find(userList)
+	DB.Find(&userList)
 	return userList, count, DB.Error
 }
 
