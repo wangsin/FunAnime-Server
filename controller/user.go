@@ -9,6 +9,20 @@ import (
 	"sinblog.cn/FunAnime-Server/util/errno"
 )
 
+func UserSendSmsCode(ctx *gin.Context) {
+	sendSmsRequest := user.SendSmsRequest{}
+	err := sendSmsRequest.BindRequest(ctx)
+	if err != nil {
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+
+
+	common.EchoSuccessJson(ctx, map[string]interface{}{})
+	return
+}
+
 func UserLogin(ctx *gin.Context) {
 	loginRequest := user.LoginRequestInfo{}
 	err := loginRequest.BindRequest(ctx)
@@ -22,6 +36,7 @@ func UserLogin(ctx *gin.Context) {
 		return
 	}
 
+	// todo: service
 	common.EchoSuccessJson(ctx, map[string]interface{}{})
 	return
 }

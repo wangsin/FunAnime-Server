@@ -60,3 +60,7 @@ func RegisterUser(userRequest user.RegisterRequestInfo) int64 {
 func checkSmsCodeSuccess(smsCode string) (bool, error) {
 	return true, nil
 }
+
+//func SendSmsCode(phone string) error {
+//
+//}

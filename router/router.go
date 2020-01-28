@@ -17,7 +17,7 @@ func NewRouter() *gin.Engine {
 	userGroup := v1Group.Group("/user")
 	{
 		userGroup.POST("/register", controller.UserRegister)
-		userGroup.POST("/smsCode", )
+		userGroup.POST("/smsCode", controller.UserSendSmsCode)
 		userGroup.POST("/login", controller.UserLogin)
 		userAuthGroup := userGroup.Group("")
 		userAuthGroup.Use(token.UserAuth())
