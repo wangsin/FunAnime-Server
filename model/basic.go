@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -13,7 +14,19 @@ var (
 	DB  *gorm.DB
 )
 
-func Database() {
+func GetDatabaseConnection() (*gorm.DB, error) {
+	var db *gorm.DB
+	if DB == nil {
+		return nil, errors.New("db_op_empty_is_nil")
+	}
+	if DB.Error != nil {
+		return db, DB.Error
+	}
+	db = DB
+	return db, nil
+}
+
+func DatabaseInit() {
 	host := viper.GetString("mysql_main.host")
 	database := viper.GetString("mysql_main.database")
 	user := viper.GetString("mysql_main.user")

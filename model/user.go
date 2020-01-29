@@ -53,18 +53,19 @@ func CreateUserWithInstance(u *User) (int64, error) {
 }
 
 func QueryUserWithWhereMap(where, whereText map[string]interface{}) ([]*User, int64, error) {
-	if DB == nil || DB.Error != nil {
-		return nil, 0, DB.Error
+	db, err := GetDatabaseConnection()
+	if db == nil || err != nil {
+		return nil, 0, err
 	}
 	var count int64
 	var userList []*User
-	DB.Debug().Table(UserTableName).Where(where)
+	db = db.Debug().Table(UserTableName).Where(where)
 	for wKey, wText := range whereText {
-		DB.Where(wKey, wText)
+		db = db.Where(wKey, wText)
 	}
-	DB.Count(&count)
-	DB.Find(&userList)
-	return userList, count, DB.Error
+	db = db.Find(&userList)
+	db = db.Count(&count)
+	return userList, count, db.Error
 }
 
 func QueryUserWithId(userId int64) (*User, error) {

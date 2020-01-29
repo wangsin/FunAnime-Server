@@ -8,6 +8,6 @@ import (
 
 func initHandler() {
 	conf.Init("dev")
-	model.Database()
+	model.DatabaseInit()
 	cache.Redis()
 }

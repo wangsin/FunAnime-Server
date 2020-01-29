@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
@@ -18,9 +17,8 @@ func UserSendSmsCode(ctx *gin.Context) {
 		return
 	}
 
-	err = serviceUser.SendSmsCode(sendSmsRequest.Phone)
+	err = serviceUser.SendSmsCode(&sendSmsRequest)
 	if err != nil {
-		fmt.Println(err)
 		common.EchoFailedJson(ctx, errno.SmsSendFailed)
 		return
 	}
@@ -42,8 +40,12 @@ func UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	// todo: service
-	common.EchoSuccessJson(ctx, map[string]interface{}{})
+	token, errNo := serviceUser.LoginUser(&loginRequest)
+	if errNo != errno.Success {
+		common.EchoFailedJson(ctx, errNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, map[string]interface{}{"token": token})
 	return
 }
 
@@ -55,7 +57,7 @@ func UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	errNo := serviceUser.RegisterUser(registerRequest)
+	errNo := serviceUser.RegisterUser(&registerRequest)
 
 	common.EchoJson(ctx, http.StatusOK, errNo, nil)
 	return

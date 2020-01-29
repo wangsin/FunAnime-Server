@@ -1,6 +1,11 @@
 package errno
 
-const Success = 0
+const (
+	Success = iota * -1
+	TokenInvalid
+	TokenExpired
+	UnknownError
+)
 
 const ParamsError = -200000
 const DBOpError = -2000001
@@ -9,6 +14,9 @@ const RedisOpError = -2000002
 const PhoneHasResisted = -300000
 const SmsCodeNotRight = -300001
 const SmsSendFailed = -300002
+const PhoneNotExistence = -300003
+const SmsCodeNotSend = -300004
+const LoginInfoFailed = -300005
 
 var ErrmsgMap = map[int64]string{
 	Success: "success",
@@ -17,7 +25,10 @@ var ErrmsgMap = map[int64]string{
 	RedisOpError: "Redis操作错误",
 	ParamsError:  "参数错误",
 
-	PhoneHasResisted: "手机号已被注册",
-	SmsCodeNotRight:  "短信验证码错误",
-	SmsSendFailed:    "发送短信失败",
+	PhoneHasResisted:  "手机号已被注册",
+	PhoneNotExistence: "手机号不存在",
+	SmsCodeNotRight:   "短信验证码错误",
+	SmsCodeNotSend:    "短信验证码尚未发送",
+	SmsSendFailed:     "发送短信失败",
+	LoginInfoFailed:   "密码或验证码错误，登陆失败",
 }

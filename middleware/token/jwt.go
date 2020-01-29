@@ -6,7 +6,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"net/http"
+	"sinblog.cn/FunAnime-Server/util/common"
+	"sinblog.cn/FunAnime-Server/util/errno"
 )
 
 var (
@@ -20,8 +21,11 @@ var (
 type UserInfo struct {
 	UserId   int64  `json:"userId"`
 	Level    int    `json:"level"`
+	Phone    string `json:"phone"`
 	Nickname string `json:"nickname"`
 	Username string `json:"username"`
+	Exp      int64  `json:"exp"`
+	Sex      int8   `json:"male"`
 	jwt.StandardClaims
 }
 
@@ -33,32 +37,18 @@ func UserAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
 		if token == "" {
-			// TODO：完善错误变量处理和日志处理
-			ctx.JSON(http.StatusOK, gin.H{
-				"status": -1,
-				"msg": "Token校验失败，非法用户",
-			})
-			ctx.Abort()
+			common.EchoFailedJson(ctx, errno.TokenInvalid)
 			return
 		}
 
-		fmt.Println(token)
 		j := NewJWT()
 		userInfo, err := j.ParseToken(token)
 		if err != nil {
 			if err == TokenExpired {
-				ctx.JSON(http.StatusOK, gin.H{
-					"status": -1,
-					"msg": "Token已过期，请重新登录",
-				})
-				ctx.Abort()
+				common.EchoFailedJson(ctx, errno.TokenExpired)
 				return
 			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"status": -1,
-				"msg": err.Error(),
-			})
-			ctx.Abort()
+			common.EchoFailedJson(ctx, errno.UnknownError)
 			return
 		}
 
@@ -69,7 +59,6 @@ func UserAuth() gin.HandlerFunc {
 func NewJWT() *JWT {
 	SecretKey = viper.GetString("secret_key.key")
 	if SecretKey == "" {
-		// TODO:此处添加日志哈
 		panic(fmt.Errorf("Read Config File Failed At Init Token\n"))
 	}
 

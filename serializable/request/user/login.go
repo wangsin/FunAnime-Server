@@ -6,9 +6,8 @@ import (
 
 type LoginRequestInfo struct {
 	Phone    string `form:"phone" json:"phone"`
-	Mail     string `form:"mail" json:"mail"`
-	Username string `form:"username" json:"username"`
-	Password string `form:"password" json:"password" binding:"required"`
+	Password string `form:"password" json:"password"`
+	SmsCode  string `form:"smsCode" json:"smsCode"`
 }
 
 func (r *LoginRequestInfo) BindRequest(c *gin.Context) error {
@@ -16,12 +15,9 @@ func (r *LoginRequestInfo) BindRequest(c *gin.Context) error {
 }
 
 func (r *LoginRequestInfo) CheckRequest() bool {
-	if r.Password == "" {
+	if r.Phone == "" || (r.Password == "" && r.SmsCode == "") {
 		return false
 	} else {
-		if r.Mail == "" && r.Phone == "" && r.Username == "" {
-			return false
-		}
 		return true
 	}
 }

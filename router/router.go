@@ -9,21 +9,24 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	v1Group := r.Group("/v1")
-	testGroup := v1Group.Group("/test")
 	{
-		testGroup.GET("/ping", controller.TestController)
-	}
-
-	userGroup := v1Group.Group("/user")
-	{
-		userGroup.POST("/register", controller.UserRegister)
-		userGroup.POST("/smsCode", controller.UserSendSmsCode)
-		userGroup.POST("/login", controller.UserLogin)
-		userAuthGroup := userGroup.Group("")
-		userAuthGroup.Use(token.UserAuth())
+		testGroup := v1Group.Group("/test")
 		{
-			userAuthGroup.GET("/info", )
-			userAuthGroup.POST("/logout", )
+			testGroup.GET("/ping", controller.TestController)
+		}
+
+		userGroup := v1Group.Group("/user")
+		{
+			userGroup.POST("/smsCode", controller.UserSendSmsCode) // 发送验证码
+			userGroup.POST("/register", controller.UserRegister)   // 注册
+			userGroup.POST("/login", controller.UserLogin)         // 登陆
+			userAuthGroup := userGroup.Group("")
+			userAuthGroup.Use(token.UserAuth())
+			{
+				userAuthGroup.PUT("/supplement")
+				userAuthGroup.GET("/info")
+				userAuthGroup.POST("/logout")
+			}
 		}
 	}
 
