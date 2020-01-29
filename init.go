@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sinblog.cn/FunAnime-Server/cache"
 	"sinblog.cn/FunAnime-Server/model"
 	"sinblog.cn/FunAnime-Server/util/conf"
 )
@@ -8,4 +9,5 @@ import (
 func initHandler() {
 	conf.Init("dev")
 	model.Database()
+	cache.Redis()
 }

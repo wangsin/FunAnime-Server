@@ -4,10 +4,15 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
+	"math/rand"
+	"sinblog.cn/FunAnime-Server/cache"
 	"sinblog.cn/FunAnime-Server/model"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
+	serviceCommon "sinblog.cn/FunAnime-Server/service/common"
 	"sinblog.cn/FunAnime-Server/util/consts"
 	"sinblog.cn/FunAnime-Server/util/errno"
+	"sinblog.cn/FunAnime-Server/util/random"
+	"strconv"
 	"time"
 )
 
@@ -61,6 +66,23 @@ func checkSmsCodeSuccess(smsCode string) (bool, error) {
 	return true, nil
 }
 
-//func SendSmsCode(phone string) error {
-//
-//}
+func SendSmsCode(phone string) error {
+	smsCode := random.GenValidateCode()
+
+	randTime := rand.Intn(3)
+	minute := 15
+	expireTime := time.Minute * time.Duration(minute) + time.Second * time.Duration(randTime)
+
+	err := cache.SetSmsCode(phone, smsCode, expireTime)
+	if err != nil {
+		return err
+	}
+
+	// 发送短信
+	err = serviceCommon.SendSms(phone, smsCode, strconv.Itoa(minute))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

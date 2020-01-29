@@ -1,0 +1,24 @@
+[dev]
+type = "conf/DEV"
+
+[mysql_main]
+host = "127.0.0.1:3306"
+database = "fun_anime_server"
+user = "root"
+password = "123456"
+
+[redis_main]
+host = "127.0.0.1:6379"
+password = ""
+db = 0
+
+[secret_key]
+key = "sinblog.cn"
+password_key = "123456"
+
+[tencent_api]
+secret_id = "screat_id_from_tencent_cloud"
+secret_key = "screat_key_from_tencent_cloud"
+sms_app_id = "sms_app_id"
+sms_sign = "sms_sign"
+sms_template_id = "template_id"

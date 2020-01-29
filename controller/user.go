@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
@@ -17,7 +18,12 @@ func UserSendSmsCode(ctx *gin.Context) {
 		return
 	}
 
-
+	err = serviceUser.SendSmsCode(sendSmsRequest.Phone)
+	if err != nil {
+		fmt.Println(err)
+		common.EchoFailedJson(ctx, errno.SmsSendFailed)
+		return
+	}
 
 	common.EchoSuccessJson(ctx, map[string]interface{}{})
 	return

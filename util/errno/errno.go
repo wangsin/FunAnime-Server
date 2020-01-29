@@ -8,6 +8,7 @@ const RedisOpError = -2000002
 
 const PhoneHasResisted = -300000
 const SmsCodeNotRight = -300001
+const SmsSendFailed = -300002
 
 var ErrmsgMap = map[int64]string{
 	Success: "success",
@@ -18,4 +19,5 @@ var ErrmsgMap = map[int64]string{
 
 	PhoneHasResisted: "手机号已被注册",
 	SmsCodeNotRight:  "短信验证码错误",
+	SmsSendFailed:    "发送短信失败",
 }
