@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"sinblog.cn/FunAnime-Server/controller"
-	"sinblog.cn/FunAnime-Server/middleware/token"
+	"sinblog.cn/FunAnime-Server/middleware/user"
 )
 
 func NewRouter() *gin.Engine {
@@ -21,7 +21,7 @@ func NewRouter() *gin.Engine {
 			userGroup.POST("/register", controller.UserRegister)   // 注册
 			userGroup.POST("/login", controller.UserLogin)         // 登陆
 			userAuthGroup := userGroup.Group("")
-			userAuthGroup.Use(token.UserAuth())
+			userAuthGroup.Use(user.UserAuth())
 			{
 				userAuthGroup.PUT("/supplement", controller.SuppleUserInfo) // 消息完善
 				userAuthGroup.GET("/info", controller.GetUserInfo)          // 获取用户信息

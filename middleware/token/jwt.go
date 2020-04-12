@@ -1,6 +1,7 @@
 package token
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -29,31 +30,13 @@ type UserInfo struct {
 	jwt.StandardClaims
 }
 
-type JWT struct {
-	SignKey []byte
+func (user *UserInfo) ToJson() string {
+	str, _ := json.Marshal(user)
+	return string(str)
 }
 
-func UserAuth() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("token")
-		if token == "" {
-			common.EchoFailedJson(ctx, errno.TokenInvalid)
-			return
-		}
-
-		j := NewJWT()
-		userInfo, err := j.ParseToken(token)
-		if err != nil {
-			if err == TokenExpired {
-				common.EchoFailedJson(ctx, errno.TokenExpired)
-				return
-			}
-			common.EchoFailedJson(ctx, errno.UnknownError)
-			return
-		}
-
-		ctx.Set("userInfo", userInfo)
-	}
+type JWT struct {
+	SignKey []byte
 }
 
 func ParseToken(ctx *gin.Context) *UserInfo {

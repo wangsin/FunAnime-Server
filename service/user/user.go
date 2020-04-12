@@ -2,7 +2,6 @@ package serviceUser
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
@@ -10,9 +9,8 @@ import (
 	"sinblog.cn/FunAnime-Server/cache"
 	"sinblog.cn/FunAnime-Server/middleware/token"
 	"sinblog.cn/FunAnime-Server/model"
-	"sinblog.cn/FunAnime-Server/serializable/request/user"
+	reqUser "sinblog.cn/FunAnime-Server/serializable/request/user"
 	serviceCommon "sinblog.cn/FunAnime-Server/service/common"
-	"sinblog.cn/FunAnime-Server/util/common"
 	"sinblog.cn/FunAnime-Server/util/consts"
 	"sinblog.cn/FunAnime-Server/util/errno"
 	"sinblog.cn/FunAnime-Server/util/random"
@@ -20,7 +18,7 @@ import (
 	"time"
 )
 
-func RegisterUser(userRequest *user.RegisterRequestInfo) int64 {
+func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
 	_, userCount, err := model.QueryUserWithWhereMap(
 		map[string]interface{}{
 			"phone": userRequest.Phone,
@@ -79,11 +77,11 @@ func checkSmsCodeSuccess(phone, smsCode string, smsType int) (bool, error) {
 	return true, nil
 }
 
-func SendSmsCode(request *user.SendSmsRequest) error {
+func SendSmsCode(request *reqUser.SendSmsRequest) error {
 	smsCode := random.GenValidateCode()
 
 	randTime := rand.Intn(3)
-	minute := 15
+	minute := 5
 	expireTime := time.Minute*time.Duration(minute) + time.Second*time.Duration(randTime)
 
 	err := cache.SetSmsCode(request.Phone, request.Type, smsCode, expireTime)
@@ -104,7 +102,7 @@ func checkPasswordRight(requestPassword, dbPassword string) bool {
 	return requestPassword == aes256.Decrypt(dbPassword, viper.GetString("secret_key.password_key"))
 }
 
-func LoginUser(userRequest *user.LoginRequestInfo) (string, int64) {
+func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
 	userList, userCount, err := model.QueryUserWithWhereMap(
 		map[string]interface{}{
 			"phone": userRequest.Phone,
@@ -127,14 +125,14 @@ func LoginUser(userRequest *user.LoginRequestInfo) (string, int64) {
 	if userRequest.Password != "" {
 		flag = checkPasswordRight(userRequest.Password, userInfo.Password)
 	} else if userRequest.SmsCode != "" {
-		flag, err = checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, user.Login)
-		//if err != nil {
-		//	return "", errno.SmsCodeNotSend
-		//}
+		flag, err = checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, reqUser.Login)
+		if err != nil {
+			return "", errno.SmsCodeNotSend
+		}
 	}
 
 	if !flag {
-		//return "", errno.LoginInfoFailed
+		return "", errno.LoginInfoFailed
 	}
 
 	tokenUserInfo := &token.UserInfo{
@@ -153,11 +151,16 @@ func LoginUser(userRequest *user.LoginRequestInfo) (string, int64) {
 	if err != nil {
 		return "", errno.TokenInvalid
 	}
+
+	if err := cache.SetUserLogin(time.Hour * 24 * 10, tokenUserInfo); err != nil {
+		return "", errno.RedisOpError
+	}
+
 	return tToken, errno.Success
 }
 
-func GetUserInfo(userInfo *token.UserInfo) (*model.User, int64) {
-	dbUserInfo, err := model.QueryUserWithId(userInfo.UserId)
+func GetUserInfo(userInfo *reqUser.BasicUser) (*model.User, int64) {
+	dbUserInfo, err := model.QueryUserWithId(userInfo.UserInfo.UserId)
 	if err != nil || dbUserInfo == nil {
 		return nil, errno.DBOpError
 	}
@@ -165,13 +168,10 @@ func GetUserInfo(userInfo *token.UserInfo) (*model.User, int64) {
 	return dbUserInfo, errno.Success
 }
 
-func Logout(ctx *gin.Context) bool {
-	userInfo := token.ParseToken(ctx)
-	if userInfo == nil {
-		common.EchoFailedJson(ctx, errno.UnknownError)
-		return false
+func Logout(userInfo *reqUser.BasicUser) error {
+	if err := cache.DelUserLogin(userInfo.UserInfo.UserId); err != nil {
+		return err
 	}
 
-	userInfo.ExpiresAt = 0
-	return true
+	return nil
 }
