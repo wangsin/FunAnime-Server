@@ -51,7 +51,8 @@ func DatabaseInit() {
 
 	DB = db
 
-	migration()
+	// todo 注释问题 无效迁移
+	//migration()
 }
 
 func migration() {

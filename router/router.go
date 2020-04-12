@@ -23,9 +23,9 @@ func NewRouter() *gin.Engine {
 			userAuthGroup := userGroup.Group("")
 			userAuthGroup.Use(token.UserAuth())
 			{
-				userAuthGroup.PUT("/supplement")
-				userAuthGroup.GET("/info")
-				userAuthGroup.POST("/logout")
+				userAuthGroup.PUT("/supplement", controller.SuppleUserInfo) // 消息完善
+				userAuthGroup.GET("/info", controller.GetUserInfo)          // 获取用户信息
+				userAuthGroup.POST("/logout", controller.UserLogOut)        // 注销
 			}
 		}
 	}

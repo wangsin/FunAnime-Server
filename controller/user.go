@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"sinblog.cn/FunAnime-Server/serializable/request/user"
-	serviceUser "sinblog.cn/FunAnime-Server/service/user"
-	"sinblog.cn/FunAnime-Server/util/common"
-	"sinblog.cn/FunAnime-Server/util/errno"
+"github.com/gin-gonic/gin"
+"net/http"
+"sinblog.cn/FunAnime-Server/serializable/request/user"
+serviceUser "sinblog.cn/FunAnime-Server/service/user"
+"sinblog.cn/FunAnime-Server/util/common"
+"sinblog.cn/FunAnime-Server/util/errno"
 )
 
 func UserSendSmsCode(ctx *gin.Context) {
@@ -61,4 +61,16 @@ func UserRegister(ctx *gin.Context) {
 
 	common.EchoJson(ctx, http.StatusOK, errNo, nil)
 	return
+}
+
+func SuppleUserInfo(ctx *gin.Context) {
+
+}
+
+func GetUserInfo(ctx *gin.Context) {
+
+}
+
+func UserLogOut(ctx *gin.Context) {
+
 }
