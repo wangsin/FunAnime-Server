@@ -17,6 +17,7 @@ const SmsSendFailed = -300002
 const PhoneNotExistence = -300003
 const SmsCodeNotSend = -300004
 const LoginInfoFailed = -300005
+const Uncertified = -300006
 
 var ErrmsgMap = map[int64]string{
 	Success: "success",
@@ -31,4 +32,5 @@ var ErrmsgMap = map[int64]string{
 	SmsCodeNotSend:    "短信验证码尚未发送",
 	SmsSendFailed:     "发送短信失败",
 	LoginInfoFailed:   "密码或验证码错误，登陆失败",
+	Uncertified:       "非法用户",
 }

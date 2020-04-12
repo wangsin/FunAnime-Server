@@ -13,8 +13,8 @@ func TestController(c *gin.Context) {
 	password := viper.GetString("mysql_main.password")
 
 	c.JSON(200, gin.H{
-		"user-agent": c.GetHeader("user-agent"),
-		"develop-environment": viper.GetString("dev.type"),
+		"user-agent":           c.GetHeader("user-agent"),
+		"develop-environment":  viper.GetString("dev.type"),
 		"mysql-connection-url": fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, password, host, database),
 	})
 }

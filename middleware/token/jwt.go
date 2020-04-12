@@ -56,6 +56,27 @@ func UserAuth() gin.HandlerFunc {
 	}
 }
 
+func ParseToken(ctx *gin.Context) *UserInfo {
+	token := ctx.Request.Header.Get("token")
+	if token == "" {
+		common.EchoFailedJson(ctx, errno.TokenInvalid)
+		return nil
+	}
+
+	j := NewJWT()
+	userInfo, err := j.ParseToken(token)
+	if err != nil {
+		if err == TokenExpired {
+			common.EchoFailedJson(ctx, errno.TokenExpired)
+			return nil
+		}
+		common.EchoFailedJson(ctx, errno.UnknownError)
+		return nil
+	}
+
+	return userInfo
+}
+
 func NewJWT() *JWT {
 	SecretKey = viper.GetString("secret_key.key")
 	if SecretKey == "" {

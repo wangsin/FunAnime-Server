@@ -1,6 +1,8 @@
 package serviceUser
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
@@ -10,6 +12,7 @@ import (
 	"sinblog.cn/FunAnime-Server/model"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
 	serviceCommon "sinblog.cn/FunAnime-Server/service/common"
+	"sinblog.cn/FunAnime-Server/util/common"
 	"sinblog.cn/FunAnime-Server/util/consts"
 	"sinblog.cn/FunAnime-Server/util/errno"
 	"sinblog.cn/FunAnime-Server/util/random"
@@ -58,6 +61,7 @@ func RegisterUser(userRequest *user.RegisterRequestInfo) int64 {
 		ModifyTime: time.Now(),
 	})
 	if err != nil {
+		fmt.Println(err)
 		return errno.DBOpError
 	}
 
@@ -124,13 +128,13 @@ func LoginUser(userRequest *user.LoginRequestInfo) (string, int64) {
 		flag = checkPasswordRight(userRequest.Password, userInfo.Password)
 	} else if userRequest.SmsCode != "" {
 		flag, err = checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, user.Login)
-		if err != nil {
-			return "", errno.SmsCodeNotSend
-		}
+		//if err != nil {
+		//	return "", errno.SmsCodeNotSend
+		//}
 	}
 
 	if !flag {
-		return "", errno.LoginInfoFailed
+		//return "", errno.LoginInfoFailed
 	}
 
 	tokenUserInfo := &token.UserInfo{
@@ -143,9 +147,31 @@ func LoginUser(userRequest *user.LoginRequestInfo) (string, int64) {
 		Sex:      userInfo.Sex,
 	}
 
+	tokenUserInfo.ExpiresAt = time.Now().AddDate(0, 0, 15).Unix()
+
 	tToken, err := token.NewJWT().CreateToken(tokenUserInfo)
 	if err != nil {
 		return "", errno.TokenInvalid
 	}
 	return tToken, errno.Success
+}
+
+func GetUserInfo(userInfo *token.UserInfo) (*model.User, int64) {
+	dbUserInfo, err := model.QueryUserWithId(userInfo.UserId)
+	if err != nil || dbUserInfo == nil {
+		return nil, errno.DBOpError
+	}
+
+	return dbUserInfo, errno.Success
+}
+
+func Logout(ctx *gin.Context) bool {
+	userInfo := token.ParseToken(ctx)
+	if userInfo == nil {
+		common.EchoFailedJson(ctx, errno.UnknownError)
+		return false
+	}
+
+	userInfo.ExpiresAt = 0
+	return true
 }

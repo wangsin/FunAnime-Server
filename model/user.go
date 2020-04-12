@@ -28,7 +28,6 @@ type User struct {
 	Phone             string    `gorm:"column:phone"`
 	Sex               int8      `gorm:"column:sex"`
 	DefaultCollection int64     `gorm:"column:default_collection_id;UNIQUE"`
-	CollectionId      string    `gorm:"column:collection_id"`
 	HistoryId         int64     `gorm:"column:history_id;UNIQUE"`
 	Level             int       `gorm:"column:level"`
 	ExpCount          int64     `gorm:"column:exp"`
@@ -72,7 +71,7 @@ func QueryUserWithId(userId int64) (*User, error) {
 	if DB == nil || DB.Error != nil {
 		return nil, DB.Error
 	}
-	var userInfo *User
+	userInfo := new(User)
 	DB.Debug().Table(UserTableName).Where("id = ?", userId).Find(userInfo)
 	return userInfo, DB.Error
 }
