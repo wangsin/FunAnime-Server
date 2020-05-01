@@ -8,12 +8,14 @@ import (
 	serviceUser "sinblog.cn/FunAnime-Server/service/user"
 	"sinblog.cn/FunAnime-Server/util/common"
 	"sinblog.cn/FunAnime-Server/util/errno"
+	"sinblog.cn/FunAnime-Server/util/logger"
 )
 
 func UserSendSmsCode(ctx *gin.Context) {
 	sendSmsRequest := reqUser.SendSmsRequest{}
 	err := sendSmsRequest.BindRequest(ctx)
 	if err != nil {
+		logger.Error("bind_request_failed_at_UserSendSmsCode", logger.Fields{"err": err.Error()})
 		common.EchoFailedJson(ctx, errno.ParamsError)
 		return
 	}

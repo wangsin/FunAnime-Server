@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mervick/aes-everywhere/go/aes256 v0.0.0-20190915194129-5b0078aa579b
 	github.com/pkg/errors v0.8.0
+	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/viper v1.6.2
 	github.com/tencentcloud/tencentcloud-sdk-go v3.0.121+incompatible
 )

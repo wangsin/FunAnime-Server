@@ -1,8 +1,8 @@
 package conf
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
+	"sinblog.cn/FunAnime-Server/util/logger"
 )
 
 func Init(runType string) {
@@ -12,6 +12,6 @@ func Init(runType string) {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Read Config File Failed, Error: %s\n", err.Error()))
+		logger.Panic("Read Config File Failed", logger.Fields{"err": err})
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sinblog.cn/FunAnime-Server/middleware/token"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
+	"sinblog.cn/FunAnime-Server/util/logger"
 	"time"
 )
 
@@ -19,7 +20,29 @@ func SetSmsCode(phone string, smsType int, smsCode string, expireTime time.Durat
 		return errors.New("params_error")
 	}
 
-	return RedisClient.Set(key, smsCode, expireTime).Err()
+	remainDuration, err := RedisClient.TTL(key).Result()
+	if err != nil {
+		// 没有找到KEY 直接Set
+		setErr := RedisClient.Set(key, smsCode, expireTime).Err()
+		if setErr != nil {
+			logger.Error("set_redis_failed_at_direct_set", logger.Fields{"err": setErr, "smsCode": smsCode, "key": key})
+			return setErr
+		}
+		return nil
+	} else {
+		// 找到KEY了 判断时间 如果差值小于30s则禁止Set
+		if expireTime - remainDuration*time.Second < 30 {
+			return errors.New("to_quick")
+		}
+
+		// 否则set新的
+		setErr := RedisClient.Set(key, smsCode, expireTime).Err()
+		if setErr != nil {
+			logger.Error("set_redis_failed_at_otherwise_set", logger.Fields{"err": setErr, "smsCode": smsCode, "key": key})
+			return setErr
+		}
+		return nil
+	}
 }
 
 func GetSmsCode(phone string, smsType int) (string, error) {

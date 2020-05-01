@@ -2,3 +2,4 @@
 /.idea/
 /go.sum
 /conf/dev.toml
+/log/

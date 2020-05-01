@@ -30,7 +30,7 @@ var ErrmsgMap = map[int64]string{
 	PhoneNotExistence: "手机号不存在",
 	SmsCodeNotRight:   "短信验证码错误",
 	SmsCodeNotSend:    "短信验证码尚未发送",
-	SmsSendFailed:     "发送短信失败",
+	SmsSendFailed:     "您发送短信过于频繁，请稍后再试~",
 	LoginInfoFailed:   "密码或验证码错误，登陆失败",
 	Uncertified:       "非法用户",
 }

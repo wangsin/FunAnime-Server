@@ -5,7 +5,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
-	"math/rand"
 	"sinblog.cn/FunAnime-Server/cache"
 	"sinblog.cn/FunAnime-Server/middleware/token"
 	"sinblog.cn/FunAnime-Server/model"
@@ -13,6 +12,7 @@ import (
 	serviceCommon "sinblog.cn/FunAnime-Server/service/common"
 	"sinblog.cn/FunAnime-Server/util/consts"
 	"sinblog.cn/FunAnime-Server/util/errno"
+	"sinblog.cn/FunAnime-Server/util/logger"
 	"sinblog.cn/FunAnime-Server/util/random"
 	"strconv"
 	"time"
@@ -36,7 +36,7 @@ func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
 		return errno.PhoneHasResisted
 	}
 
-	flag, err := checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, user.Register)
+	flag, err := checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, reqUser.Register)
 	if err != nil {
 		return errno.SmsCodeNotSend
 	}
@@ -80,18 +80,19 @@ func checkSmsCodeSuccess(phone, smsCode string, smsType int) (bool, error) {
 func SendSmsCode(request *reqUser.SendSmsRequest) error {
 	smsCode := random.GenValidateCode()
 
-	randTime := rand.Intn(3)
-	minute := 5
-	expireTime := time.Minute*time.Duration(minute) + time.Second*time.Duration(randTime)
+	minute := 300
+	expireTime := time.Second*time.Duration(minute)
 
 	err := cache.SetSmsCode(request.Phone, request.Type, smsCode, expireTime)
 	if err != nil {
+		logger.Error("set_sms_code_failed", logger.Fields{"err": err, "request": request})
 		return err
 	}
 
 	// 发送短信
-	err = serviceCommon.SendSms(request.Phone, smsCode, strconv.Itoa(minute))
+	err = serviceCommon.SendSms(request.Phone, smsCode, strconv.Itoa(minute/60))
 	if err != nil {
+		logger.Error("send_sms_error", logger.Fields{"err": err, "request": request})
 		return err
 	}
 

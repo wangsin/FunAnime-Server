@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
+	"sinblog.cn/FunAnime-Server/util/logger"
 	"time"
 )
 
@@ -36,7 +37,7 @@ func DatabaseInit() {
 	if err != nil {
 		DB = &gorm.DB{}
 		DB.Error = err
-		return
+		logger.Panic("conn_to_mysql_failed", logger.Fields{"err": err})
 	}
 
 	db.LogMode(true)

@@ -1,12 +1,16 @@
 package serviceCommon
 
 import (
+	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20190711"
+	"sinblog.cn/FunAnime-Server/util/logger"
 )
+
+var SuccessSend = "Ok"
 
 func SendSms(phone, smsCode, duration string) error {
 	credential := common.NewCredential(
@@ -17,6 +21,7 @@ func SendSms(phone, smsCode, duration string) error {
 	cpf.HttpProfile.Endpoint = "sms.tencentcloudapi.com"
 	client, err := sms.NewClient(credential, "ap-beijing", cpf)
 	if err != nil {
+		logger.Error("send_sms_new_client_failed", logger.Fields{"err": err, "client": client, "cpf": cpf, "credential": credential})
 		return err
 	}
 
@@ -32,11 +37,17 @@ func SendSms(phone, smsCode, duration string) error {
 	request.TemplateParamSet = []*string{&smsCode, &duration}
 	request.SmsSdkAppid = &sdkAppId
 
-	response, err := client.SendSms(request)
-	if err != nil {
-		return err
+	response, apiErr := client.SendSms(request)
+	if apiErr != nil {
+		logger.Error("send_sms_failed", logger.Fields{"err": apiErr, "request": request, "response": response, "client": client, "cpf": cpf, "credential": credential})
+		return apiErr
 	}
 
-	fmt.Printf("%s", response.ToJsonString())
+	if len(response.Response.SendStatusSet) < 0 || response.Response.SendStatusSet[0].Code != &SuccessSend {
+		logger.Error("send_sms_api_error", logger.Fields{"err": apiErr, "request": request, "response": response, "client": client, "cpf": cpf, "credential": credential})
+		return errors.New("send_sms_api_error")
+	}
+
+	logger.Info("send_sms_response", logger.Fields{"request": request, "response": response, "client": client, "cpf": cpf, "credential": credential})
 	return nil
 }

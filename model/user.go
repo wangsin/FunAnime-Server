@@ -21,19 +21,17 @@ const (
 )
 
 type User struct {
-	Id                int64     `gorm:"column:id;AUTO_INCREMENT;PRIMARY_KEY"`
-	Username          string    `gorm:"column:user_name;UNIQUE"`
+	Id                int64     `gorm:"column:id;"`
+	Username          string    `gorm:"column:user_name;"`
 	Nickname          string    `gorm:"column:nick_name"`
 	Password          string    `gorm:"column:password"`
 	Phone             string    `gorm:"column:phone"`
 	Sex               int8      `gorm:"column:sex"`
-	DefaultCollection int64     `gorm:"column:default_collection_id;UNIQUE"`
-	HistoryId         int64     `gorm:"column:history_id;UNIQUE"`
 	Level             int       `gorm:"column:level"`
 	ExpCount          int64     `gorm:"column:exp"`
 	Mail              string    `gorm:"column:mail"`
 	Birthday          time.Time `gorm:"column:birthday"`
-	Avatar            string    `gorm:"column:avatar;size:1000"`
+	Avatar            string    `gorm:"column:avatar"`
 	Status            int       `gorm:"column:status"`
 	CreateTime        time.Time `gorm:"column:create_time"`
 	ModifyTime        time.Time `gorm:"column:modify_time"`
