@@ -1,6 +1,9 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"errors"
+	"github.com/gin-gonic/gin"
+)
 
 const (
 	Register = iota + 1 // 注册
@@ -8,12 +11,21 @@ const (
 )
 
 type SendSmsRequest struct {
-	Phone string      `json:"phone" binding:"required"`
-	Type  int         `json:"type" binding:"required"`
+	Phone string      `json:"phone"`
+	Type  int         `json:"type"`
 	Ctx   gin.Context `json:"-"`
 }
 
 func (register *SendSmsRequest) BindRequest(c *gin.Context) error {
 	register.Ctx = *c
-	return c.Bind(register)
+	err := c.Bind(register)
+	if err != nil {
+		return err
+	}
+
+	if register.Phone == "" {
+		return errors.New("Params_error")
+	}
+
+	return nil
 }

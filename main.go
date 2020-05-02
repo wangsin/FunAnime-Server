@@ -8,7 +8,7 @@ import (
 func main() {
 	// todo 开发环境 生产环境配置待完善
 	initHandler("dev")
-	err := router.NewRouter().Run(":8080")
+	err := router.NewRouter().Run(":8088")
 	if err != nil {
 		logger.Fatal("start_serve_failed", logger.Fields{"err": err})
 		return

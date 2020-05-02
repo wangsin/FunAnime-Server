@@ -1,12 +1,34 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"errors"
+	"github.com/gin-gonic/gin"
+	"github.com/mervick/aes-everywhere/go/aes256"
+	"github.com/spf13/viper"
+	"strings"
+)
 
 type RegisterRequestInfo struct {
-	Phone   string `form:"phone" json:"phone" binding:"required"`
-	SmsCode string `form:"smsCode" json:"smsCode" binding:"required"`
+	Phone        string `json:"phone" binding:"required"`
+	SmsCode      string `json:"smsCode" binding:"required"`
+	Password     string `json:"password"`
+	Mail         string `json:"mail"`
+	TruePassword string `json:"-"`
 }
 
 func (register *RegisterRequestInfo) BindRequest(c *gin.Context) error {
-	return c.Bind(register)
+	err := c.Bind(register)
+	if err != nil {
+		return err
+	}
+
+	if register.Mail != "" || register.Password != "" {
+		if !strings.Contains(register.Mail, "@") {
+			return errors.New("mail_not_fit")
+		}
+
+		register.TruePassword = aes256.Decrypt(register.Password, viper.GetString("secret_key.password_key"))
+	}
+
+	return nil
 }

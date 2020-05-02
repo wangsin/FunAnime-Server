@@ -12,7 +12,7 @@ type Fields log.Fields
 func Init() {
 	now := time.Now()
 	path := "./log/"
-	filename := fmt.Sprintf("fa_run.%d%d%d%d.log", now.Year(), now.Month(), now.Day(), now.Hour())
+	filename := fmt.Sprintf("fa_run.%d_%d_%d_%d.log", now.Year(), now.Month(), now.Day(), now.Hour())
 
 	file, err := osUtil.TouchFile(filename, path)
 	if err != nil {

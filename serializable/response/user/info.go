@@ -11,6 +11,8 @@ type InfoResponse struct {
 	Exp      int64  `json:"exp"`
 	Level    int    `json:"level"`
 	UserId   int64  `json:"user_id"`
+	Status   int    `json:"status"`
+	Mail     string `json:"mail"`
 }
 
 func BuildResponse(user *model.User) *InfoResponse {
@@ -21,5 +23,7 @@ func BuildResponse(user *model.User) *InfoResponse {
 		Exp:      user.ExpCount,
 		Level:    user.Level,
 		UserId:   user.Id,
+		Status:   user.Status,
+		Mail:     user.Mail,
 	}
 }

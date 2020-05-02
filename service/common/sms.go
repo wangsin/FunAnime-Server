@@ -43,7 +43,8 @@ func SendSms(phone, smsCode, duration string) error {
 		return apiErr
 	}
 
-	if len(response.Response.SendStatusSet) < 0 || response.Response.SendStatusSet[0].Code != &SuccessSend {
+	respCode := response.Response.SendStatusSet[0].Code
+	if len(response.Response.SendStatusSet) < 0 || *respCode != SuccessSend {
 		logger.Error("send_sms_api_error", logger.Fields{"err": apiErr, "request": request, "response": response, "client": client, "cpf": cpf, "credential": credential})
 		return errors.New("send_sms_api_error")
 	}

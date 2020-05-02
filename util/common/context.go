@@ -38,8 +38,8 @@ func EchoBaseJson(ctx *gin.Context, code int, errNo int64, data interface{}) {
 
 // 失败返回 需Abort
 func EchoFailedJson(ctx *gin.Context, statusCode int64) {
-	EchoJson(ctx, http.StatusBadRequest, statusCode, map[string]interface{}{})
-	ctx.AbortWithStatus(http.StatusBadRequest)
+	EchoJson(ctx, http.StatusOK, statusCode, map[string]interface{}{})
+	//ctx.AbortWithStatus(http.StatusBadRequest)
 }
 
 // 成功返回

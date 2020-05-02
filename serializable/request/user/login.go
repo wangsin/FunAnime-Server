@@ -5,9 +5,9 @@ import (
 )
 
 type LoginRequestInfo struct {
-	Phone    string `form:"phone" json:"phone"`
-	Password string `form:"password" json:"password"`
-	SmsCode  string `form:"smsCode" json:"smsCode"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+	SmsCode  string `json:"smsCode"`
 }
 
 func (r *LoginRequestInfo) BindRequest(c *gin.Context) error {

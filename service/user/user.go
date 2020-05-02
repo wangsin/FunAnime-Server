@@ -1,7 +1,6 @@
 package serviceUser
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
@@ -19,7 +18,7 @@ import (
 )
 
 func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
-	_, userCount, err := model.QueryUserWithWhereMap(
+	result, userCount, err := model.QueryUserWithWhereMap(
 		map[string]interface{}{
 			"phone": userRequest.Phone,
 		},
@@ -29,26 +28,36 @@ func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
 	)
 
 	if err != nil && err != gorm.ErrRecordNotFound {
+		logger.Error("db_op_failed_at_QueryUserWithWhereMap", logger.Fields{"err": err.Error(), "request": userRequest})
 		return errno.DBOpError
 	}
 
-	if userCount != 0 && err != gorm.ErrRecordNotFound {
+	if len(result) > 0 || userCount > 0 {
+		logger.Error("RegisterUser_PhoneHasResisted", logger.Fields{"request": userRequest})
 		return errno.PhoneHasResisted
 	}
 
 	flag, err := checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, reqUser.Register)
 	if err != nil {
+		logger.Error("RegisterUser_SmsCodeNotSend", logger.Fields{"err": err.Error(), "request": userRequest})
 		return errno.SmsCodeNotSend
 	}
 
 	if !flag {
+		logger.Error("RegisterUser_SmsCodeNotRight", logger.Fields{"request": userRequest})
 		return errno.SmsCodeNotRight
+	}
+
+	password := userRequest.Password
+	if len(userRequest.Password) <= 0 {
+		password = aes256.Encrypt(random.GenRandomPassword(), viper.GetString("secret_key.password_key"))
 	}
 
 	_, err = model.CreateUserWithInstance(&model.User{
 		Username:   random.GenEncryptUserName(userRequest.Phone),
 		Nickname:   random.GenEncryptUserName(userRequest.Phone),
-		Password:   aes256.Encrypt(random.GenRandomPassword(), viper.GetString("secret_key.password_key")),
+		Mail:       userRequest.Mail,
+		Password:   password,
 		Phone:      userRequest.Phone,
 		Sex:        model.NotCommit,
 		Level:      0,
@@ -58,8 +67,9 @@ func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
 		CreateTime: time.Now(),
 		ModifyTime: time.Now(),
 	})
+
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("RegisterUser_CreateUserWithInstance", logger.Fields{"err": err.Error(), "request": userRequest})
 		return errno.DBOpError
 	}
 
@@ -81,7 +91,7 @@ func SendSmsCode(request *reqUser.SendSmsRequest) error {
 	smsCode := random.GenValidateCode()
 
 	minute := 300
-	expireTime := time.Second*time.Duration(minute)
+	expireTime := time.Second * time.Duration(minute)
 
 	err := cache.SetSmsCode(request.Phone, request.Type, smsCode, expireTime)
 	if err != nil {
@@ -153,7 +163,7 @@ func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
 		return "", errno.TokenInvalid
 	}
 
-	if err := cache.SetUserLogin(time.Hour * 24 * 10, tokenUserInfo); err != nil {
+	if err := cache.SetUserLogin(time.Hour*24*10, tokenUserInfo); err != nil {
 		return "", errno.RedisOpError
 	}
 

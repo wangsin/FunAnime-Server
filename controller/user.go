@@ -56,6 +56,7 @@ func UserRegister(ctx *gin.Context) {
 	registerRequest := reqUser.RegisterRequestInfo{}
 	err := registerRequest.BindRequest(ctx)
 	if err != nil {
+		logger.Error("bind_request_failed_at_UserRegister", logger.Fields{"err": err.Error()})
 		common.EchoFailedJson(ctx, errno.ParamsError)
 		return
 	}
