@@ -5,25 +5,29 @@ import (
 )
 
 type InfoResponse struct {
-	UserName string `json:"user_name"`
-	Phone    string `json:"phone"`
-	NickName string `json:"nick_name"`
-	Exp      int64  `json:"exp"`
-	Level    int    `json:"level"`
-	UserId   int64  `json:"user_id"`
-	Status   int    `json:"status"`
-	Mail     string `json:"mail"`
+	Token      string `json:"token,omitempty"`
+	UserName   string `json:"user_name"`
+	Phone      string `json:"phone"`
+	NickName   string `json:"nick_name"`
+	Exp        int64  `json:"exp"`
+	Level      int    `json:"level"`
+	UserId     int64  `json:"user_id"`
+	Status     int    `json:"status"`
+	Mail       string `json:"mail"`
+	UserAvatar string `json:"user_avatar"`
 }
 
-func BuildResponse(user *model.User) *InfoResponse {
+func BuildResponse(user *model.User, token string) *InfoResponse {
 	return &InfoResponse{
-		UserName: user.Username,
-		Phone:    user.Phone,
-		NickName: user.Nickname,
-		Exp:      user.ExpCount,
-		Level:    user.Level,
-		UserId:   user.Id,
-		Status:   user.Status,
-		Mail:     user.Mail,
+		Token:      token,
+		UserAvatar: user.Avatar,
+		UserName:   user.Username,
+		Phone:      user.Phone,
+		NickName:   user.Nickname,
+		Exp:        user.ExpCount,
+		Level:      user.Level,
+		UserId:     user.Id,
+		Status:     user.Status,
+		Mail:       user.Mail,
 	}
 }

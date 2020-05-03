@@ -1,6 +1,7 @@
 package serviceUser
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
@@ -110,10 +111,13 @@ func SendSmsCode(request *reqUser.SendSmsRequest) error {
 }
 
 func checkPasswordRight(requestPassword, dbPassword string) bool {
-	return requestPassword == aes256.Decrypt(dbPassword, viper.GetString("secret_key.password_key"))
+	key := viper.GetString("secret_key.password_key")
+	fmt.Println(aes256.Decrypt(requestPassword, key))
+	fmt.Println(aes256.Decrypt(dbPassword, key))
+	return aes256.Decrypt(requestPassword, key) == aes256.Decrypt(dbPassword, key)
 }
 
-func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
+func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, *model.User, int64) {
 	userList, userCount, err := model.QueryUserWithWhereMap(
 		map[string]interface{}{
 			"phone": userRequest.Phone,
@@ -124,11 +128,13 @@ func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
 	)
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return "", errno.DBOpError
+		logger.Error("db_op_failed", logger.Fields{"err": err, "request": userRequest})
+		return "", nil, errno.DBOpError
 	}
 
 	if err == gorm.ErrRecordNotFound || userCount == 0 || len(userList) <= 0 {
-		return "", errno.PhoneNotExistence
+		logger.Error("phone_not_exist", logger.Fields{"err": err, "request": userRequest})
+		return "", nil, errno.PhoneNotExistence
 	}
 
 	userInfo := userList[0]
@@ -138,12 +144,14 @@ func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
 	} else if userRequest.SmsCode != "" {
 		flag, err = checkSmsCodeSuccess(userRequest.Phone, userRequest.SmsCode, reqUser.Login)
 		if err != nil {
-			return "", errno.SmsCodeNotSend
+			logger.Error("check_sms_code_failed", logger.Fields{"err": err, "request": userRequest})
+			return "", nil, errno.SmsCodeNotSend
 		}
 	}
 
 	if !flag {
-		return "", errno.LoginInfoFailed
+		logger.Error("login_info_not_fit", logger.Fields{"err": err, "request": userRequest})
+		return "", nil, errno.LoginInfoFailed
 	}
 
 	tokenUserInfo := &token.UserInfo{
@@ -153,21 +161,22 @@ func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, int64) {
 		Nickname: userInfo.Nickname,
 		Username: userInfo.Username,
 		Exp:      userInfo.ExpCount,
-		Sex:      userInfo.Sex,
 	}
 
 	tokenUserInfo.ExpiresAt = time.Now().AddDate(0, 0, 15).Unix()
 
 	tToken, err := token.NewJWT().CreateToken(tokenUserInfo)
 	if err != nil {
-		return "", errno.TokenInvalid
+		logger.Error("token_generate_failed", logger.Fields{"err": err, "request": userRequest})
+		return "", nil, errno.TokenInvalid
 	}
 
 	if err := cache.SetUserLogin(time.Hour*24*10, tokenUserInfo); err != nil {
-		return "", errno.RedisOpError
+		logger.Error("set_redis_op_failed", logger.Fields{"err": err, "request": userRequest})
+		return "", nil, errno.RedisOpError
 	}
 
-	return tToken, errno.Success
+	return tToken, userInfo, errno.Success
 }
 
 func GetUserInfo(userInfo *reqUser.BasicUser) (*model.User, int64) {

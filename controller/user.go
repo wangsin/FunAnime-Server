@@ -34,21 +34,25 @@ func UserLogin(ctx *gin.Context) {
 	loginRequest := reqUser.LoginRequestInfo{}
 	err := loginRequest.BindRequest(ctx)
 	if err != nil {
+		logger.Error("params_error_at_login", logger.Fields{"err": err, "request": loginRequest})
 		common.EchoFailedJson(ctx, errno.ParamsError)
 		return
 	}
 	flag := loginRequest.CheckRequest()
 	if !flag {
+		logger.Error("request_not_fit_at_login", logger.Fields{"request": loginRequest})
 		common.EchoFailedJson(ctx, errno.ParamsError)
 		return
 	}
 
-	token, errNo := serviceUser.LoginUser(&loginRequest)
+	token, userInfo, errNo := serviceUser.LoginUser(&loginRequest)
 	if errNo != errno.Success {
 		common.EchoFailedJson(ctx, errNo)
 		return
 	}
-	common.EchoSuccessJson(ctx, map[string]interface{}{"token": token})
+
+	resp := respUser.BuildResponse(userInfo, token)
+	common.EchoBaseJson(ctx, http.StatusOK, errNo, resp)
 	return
 }
 
@@ -84,7 +88,7 @@ func GetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	resp := respUser.BuildResponse(modelUser)
+	resp := respUser.BuildResponse(modelUser, "")
 	common.EchoBaseJson(ctx, http.StatusOK, errNo, resp)
 	return
 }

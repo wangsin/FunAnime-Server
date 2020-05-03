@@ -15,7 +15,7 @@ func (r *LoginRequestInfo) BindRequest(c *gin.Context) error {
 }
 
 func (r *LoginRequestInfo) CheckRequest() bool {
-	if r.Phone == "" || (r.Password == "" && r.SmsCode == "") {
+	if (r.Phone == "" && r.Password == "") || (r.Phone == "" && r.SmsCode == "") {
 		return false
 	} else {
 		return true
