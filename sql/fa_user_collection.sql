@@ -6,6 +6,8 @@ create table fa_user_collection
     cover_img varchar(1024) not null default '' comment '封面图，冗余查寻',
     is_share tinyint(2) not null default '0' comment '是否对外开放',
     status tinyint(4) not null default '0' comment '视频状态：-1已删除，1正常',
+    create_time timestamp not null default CURRENT_TIMESTAMP comment '创建时间',
+    modify_time timestamp not null default CURRENT_TIMESTAMP comment '修改时间',
     primary key (`id`),
     key (`user_id`),
     key (`status`)

@@ -13,11 +13,9 @@ const (
 type SendSmsRequest struct {
 	Phone string      `json:"phone"`
 	Type  int         `json:"type"`
-	Ctx   gin.Context `json:"-"`
 }
 
 func (register *SendSmsRequest) BindRequest(c *gin.Context) error {
-	register.Ctx = *c
 	err := c.Bind(register)
 	if err != nil {
 		return err

@@ -10,6 +10,7 @@ const (
 const ParamsError = -200000
 const DBOpError = -2000001
 const RedisOpError = -2000002
+const NotFound = -2000003
 
 const PhoneHasResisted = -300000
 const SmsCodeNotRight = -300001
@@ -33,4 +34,6 @@ var ErrmsgMap = map[int64]string{
 	SmsSendFailed:     "您发送短信过于频繁，请稍后再试~",
 	LoginInfoFailed:   "密码或验证码错误，登陆失败",
 	Uncertified:       "非法用户",
+
+	NotFound: "没有找到",
 }

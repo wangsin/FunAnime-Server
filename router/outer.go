@@ -31,8 +31,8 @@ func OuterRouter(r *gin.Engine) {
 		videoGroup := outerGroup.Group("/video")
 		{
 			// 视频基本接口
-			videoGroup.GET("/detail/:id")
-			videoGroup.GET("/list")
+			videoGroup.GET("/detail/:id", controller.GetVideoDetailForOuter)
+			videoGroup.GET("/list", controller.GetVideoListForOuter)
 			videoOperateGroup := videoGroup.Group("/operate")
 			videoOperateGroup.Use(user.UserAuth())
 			{

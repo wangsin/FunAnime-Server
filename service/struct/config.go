@@ -2,7 +2,7 @@ package serviceStruct
 
 import (
 	"encoding/json"
-	"fmt"
+	"sinblog.cn/FunAnime-Server/util/common"
 )
 
 type BasicRouter struct {
@@ -33,6 +33,6 @@ func (mv *MainConfig) FromJson(str string) error {
 
 func (mv *MainConfig) BuildImgLink() {
 	for _, info := range mv.CarouselImg {
-		info.TrueLink = fmt.Sprintf("http://192.168.127.130:4869/%s", info.Image)
+		info.TrueLink = common.BuildImageLink(info.Image)
 	}
 }
