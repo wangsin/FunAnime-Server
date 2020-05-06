@@ -10,17 +10,20 @@ import (
 
 func UserAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		tokenStr := ctx.Request.Header.Get("token")
-		if tokenStr == "" {
+		c, er := ctx.Request.Cookie("outerToken")
+		if er != nil {
 			common.EchoFailedJson(ctx, errno.TokenInvalid)
+			ctx.Abort()
 			return
 		}
 
 		j := token.NewJWT()
+		tokenStr := c.Value
 		userInfo, err := j.ParseToken(tokenStr)
 		if err != nil {
 			if err == token.TokenExpired {
 				common.EchoFailedJson(ctx, errno.TokenExpired)
+				ctx.Abort()
 				return
 			}
 			common.EchoFailedJson(ctx, errno.UnknownError)
@@ -29,6 +32,7 @@ func UserAuth() gin.HandlerFunc {
 
 		_, err = cache.GetUserLogin(userInfo.UserId)
 		if err != nil {
+			ctx.Abort()
 			common.EchoFailedJson(ctx, errno.TokenExpired)
 			return
 		}

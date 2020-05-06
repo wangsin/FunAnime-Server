@@ -37,20 +37,26 @@ func OuterRouter(r *gin.Engine) {
 			videoOperateGroup.Use(user.UserAuth())
 			{
 				videoOperateGroup.POST("/collect")
-				videoOperateGroup.POST("/share")
+				videoOperateGroup.POST("/unCollect")
 			}
 
 			// 视频管理后台接口
 			videoManageGroup := videoGroup.Group("/manage")
 			videoManageGroup.Use(user.UserAuth())
 			{
+				videoManageGroup.GET("/uploadSign", controller.GetVideoUploadSign)
+				videoManageGroup.GET("/list")
 				videoManageGroup.POST("/hide")
-				videoManageGroup.POST("/upload")
+				videoManageGroup.POST("/upload", controller.UploadVideo)
 				videoManageGroup.PUT("/update")
 				videoManageGroup.DELETE("/remove")
 			}
 
-			// 视频弹幕逻辑使用GO IM架构，此服务用于数据持久化
+			// 弹幕发射逻辑使用websocket，本接口用户DB数据初始化
+			videoBarrageGroup := videoGroup.Group("/barrage")
+			{
+				videoBarrageGroup.GET("/list/:id", controller.GetBarrageList)
+			}
 
 			// 视频评论接口
 			videoCommentGroup := videoGroup.Group("/comment")
