@@ -3,6 +3,9 @@ package request
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"mime/multipart"
+	"net/http"
 	serviceStruct "sinblog.cn/FunAnime-Server/service/struct"
 )
 
@@ -22,4 +25,21 @@ func (bcr *BasicConfig) GetRequest(ctx *gin.Context) error {
 		return errors.New("params_error")
 	}
 	return nil
+}
+
+type ImgUpload struct {
+	File        multipart.File
+	FileHandler *multipart.FileHeader
+}
+
+func (formatData *ImgUpload) GetRequestData(r *http.Request) error {
+	r.ParseMultipartForm(32 << 20)
+	file, handler, err := r.FormFile("file")
+	if file == nil || handler == nil || err != nil {
+		return err
+	}
+
+	formatData.File = file
+	formatData.FileHandler = handler
+	return binding.Default(r.Method, r.Header.Get("Content-Type")).Bind(r, formatData)
 }

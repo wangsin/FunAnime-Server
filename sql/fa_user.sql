@@ -6,8 +6,6 @@ create table fa_user
 	password varchar(512) not null default '' comment '密码',
 	phone varchar(64) not null default '' comment '手机号',
 	sex tinyint(2) not null default 0 comment '性别',
-    level tinyint(8) not null default 0 comment '级别',
-    exp int(32) not null default 0 comment '经验值',
     mail varchar(128) not null default '' comment '邮箱',
     birthday timestamp not null default CURRENT_TIMESTAMP comment '生日',
     avatar varchar(1024) not null default '' comment '头像',

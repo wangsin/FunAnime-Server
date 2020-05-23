@@ -14,6 +14,7 @@ type VideoInfo struct {
 	Volume  string `json:"volume"`
 	Date    string `json:"date"`
 	VideoId int64  `json:"video_id"`
+	Status  int    `json:"status"`
 }
 
 type VideoListResponse struct {
@@ -41,6 +42,31 @@ func BuildVideoListResponse(videoList []*model.FaVideo, page int, size int, coun
 
 	return VideoListResponse{
 		VideoList: list,
-		PageData: pageData,
+		PageData:  pageData,
+	}
+}
+
+func BuildVideoManageListResponse(videoList []*model.FaVideo, page int, size int, count int64) VideoListResponse {
+	list := make([]*VideoInfo, len(videoList))
+	for i, video := range videoList {
+		list[i] = &VideoInfo{
+			TrueImg: common.BuildImageLink(video.CoverImg),
+			Title:   video.VideoName,
+			Volume:  utilMath.GetHumanFormatNumber(video.Pv),
+			Date:    video.PassTime.Format(consts.TimeFormatYMDHM),
+			VideoId: video.Id,
+			Status:  video.Status,
+		}
+	}
+
+	pageData := response.PageData{
+		Page:  page,
+		Size:  size,
+		Count: count,
+	}
+
+	return VideoListResponse{
+		VideoList: list,
+		PageData:  pageData,
 	}
 }

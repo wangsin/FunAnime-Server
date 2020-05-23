@@ -1,15 +1,18 @@
 package serviceVideo
 
 import (
+	"fmt"
 	"sinblog.cn/FunAnime-Server/middleware/token"
 	"sinblog.cn/FunAnime-Server/model"
 	requestVideo "sinblog.cn/FunAnime-Server/serializable/request/video"
 	"sinblog.cn/FunAnime-Server/util/errno"
 	"sinblog.cn/FunAnime-Server/util/logger"
+	"strings"
 	"time"
 )
 
 func GetVideoList(req *requestVideo.GetVideoListForOuter) ([]*model.FaVideo, int64, int64) {
+	whereText := make([]string, 0)
 	whereMap := map[string]interface{}{
 		"status=?": model.FaVideoNormal,
 	}
@@ -18,7 +21,24 @@ func GetVideoList(req *requestVideo.GetVideoListForOuter) ([]*model.FaVideo, int
 		whereMap["category_top_level=?"] = req.Category
 	}
 
-	videoList, count, err := model.GetVideoList(whereMap, "", req.Page, req.Size, "create_time desc")
+	if req.Title != "" {
+		whereText = append(whereText, fmt.Sprintf("video_name LIKE '%%%s%%'", req.Title))
+	}
+
+	videoList, count, err := model.GetVideoList(whereMap, strings.Join(whereText, " and "), req.Page, req.Size, "create_time desc")
+	if err != nil {
+		logger.Error("get_video_list_failed", logger.Fields{"err": err})
+		return nil, 0, errno.DBOpError
+	}
+
+	return videoList, count, errno.Success
+}
+
+func GetFixUserVideoList(userInfo *token.UserInfo, page, size int) ([]*model.FaVideo, int64, int64) {
+	videoList, count, err := model.GetVideoList(map[string]interface{}{
+		"creator=?": userInfo.UserId,
+		"status>?": -1,
+	}, "", page, size, "create_time desc")
 	if err != nil {
 		logger.Error("get_video_list_failed", logger.Fields{"err": err})
 		return nil, 0, errno.DBOpError
@@ -104,7 +124,8 @@ func UploadVideo(req *requestVideo.UploadRequest) int64 {
 		CategoryNextLevelDesc: req.CategoryNextDesc,
 		CoverImg:              req.CoverImg,
 		Creator:               req.UserInfo.UserId,
-		Status:                model.FaVideoAuditing,
+		Status:                model.FaVideoNormal,
+		PassTime:              time.Now(),
 		CreateTime:            time.Now(),
 		ModifyTime:            time.Now(),
 	}

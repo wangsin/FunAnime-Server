@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"sinblog.cn/FunAnime-Server/middleware/token"
 	"sinblog.cn/FunAnime-Server/util/common"
@@ -27,13 +28,13 @@ func (bu *BasicUser) GetUserInfo(ctx *gin.Context) error {
 func GetUserInfoFromContext(ctx *gin.Context) *token.UserInfo {
 	uInfo, ok := ctx.Get("userInfo")
 	if !ok {
-		//common.EchoJson(ctx, http.StatusOK, errno.Uncertified, nil)
+		fmt.Println(uInfo)
 		return nil
 	}
 
 	userInfo, ok := uInfo.(*token.UserInfo)
 	if !ok {
-		//common.EchoFailedJson(ctx, errno.UnknownError)
+		fmt.Println(userInfo)
 		return nil
 	}
 

@@ -1,4 +1,4 @@
-create table fa_config
+create table fa_power
 (
     id bigint(64) auto_increment comment '权限ID',
     pow_name varchar(128) not null default '' comment '权限名称',

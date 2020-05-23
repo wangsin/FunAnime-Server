@@ -32,9 +32,9 @@ func UserAuth() gin.HandlerFunc {
 
 		_, err = cache.GetUserLogin(userInfo.UserId)
 		if err != nil {
-			ctx.Abort()
-			common.EchoFailedJson(ctx, errno.TokenExpired)
-			return
+			//ctx.Abort()
+			//common.EchoFailedJson(ctx, errno.TokenExpired)
+			//return
 		}
 
 		ctx.Set("userInfo", userInfo)

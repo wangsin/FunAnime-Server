@@ -45,7 +45,7 @@ func OuterRouter(r *gin.Engine) {
 			videoManageGroup.Use(user.UserAuth())
 			{
 				videoManageGroup.GET("/uploadSign", controller.GetVideoUploadSign)
-				videoManageGroup.GET("/list")
+				videoManageGroup.GET("/list", controller.GetManageVideoList)
 				videoManageGroup.POST("/hide")
 				videoManageGroup.POST("/upload", controller.UploadVideo)
 				videoManageGroup.PUT("/update")

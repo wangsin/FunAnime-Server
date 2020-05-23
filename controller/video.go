@@ -86,6 +86,7 @@ func UploadVideo(ctx *gin.Context) {
 	err := request.GetRequest(ctx)
 	if err != nil || request.UserInfo == nil {
 		logger.Error("get_upload_video_params_error", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.UnknownError)
 		return
 	}
 
@@ -98,6 +99,19 @@ func UploadVideo(ctx *gin.Context) {
 
 	common.EchoSuccessJson(ctx, gin.H{})
 	return
+}
+
+func GetManageVideoList(ctx *gin.Context) {
+	loginInfo := user.GetUserInfoFromContext(ctx)
+	fmt.Println(loginInfo)
+	list, count, errNo := serviceVideo.GetFixUserVideoList(loginInfo, 1, 20)
+	if errNo != errno.Success {
+		logger.Error("get_manage_video_list_failed", logger.Fields{"err": errNo})
+		common.EchoFailedJson(ctx, errNo)
+		return
+	}
+
+	common.EchoBaseJson(ctx, http.StatusOK, errNo, responseVideo.BuildVideoManageListResponse(list, 1, 100, count))
 }
 
 func GetBarrageList(ctx *gin.Context) {

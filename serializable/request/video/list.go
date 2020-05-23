@@ -5,9 +5,10 @@ import (
 )
 
 type GetVideoListForOuter struct {
-	Category int `form:"category"`
-	Page     int `form:"page"`
-	Size     int `form:"size"`
+	Category int    `form:"category"`
+	Page     int    `form:"page"`
+	Size     int    `form:"size"`
+	Title    string `form:"title"`
 }
 
 func (req *GetVideoListForOuter) GetRequest(c *gin.Context) error {
