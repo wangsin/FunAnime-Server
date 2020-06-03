@@ -36,8 +36,9 @@ func OuterRouter(r *gin.Engine) {
 			videoOperateGroup := videoGroup.Group("/operate")
 			videoOperateGroup.Use(user.UserAuth())
 			{
-				videoOperateGroup.POST("/collect")
-				videoOperateGroup.POST("/unCollect")
+				videoOperateGroup.POST("/collect", controller.CreateCollection)
+				videoOperateGroup.POST("/unCollect", controller.RemoveCollection)
+				videoOperateGroup.GET("/collectList", controller.GetCollectList)
 			}
 
 			// 视频管理后台接口
@@ -46,10 +47,12 @@ func OuterRouter(r *gin.Engine) {
 			{
 				videoManageGroup.GET("/uploadSign", controller.GetVideoUploadSign)
 				videoManageGroup.GET("/list", controller.GetManageVideoList)
-				videoManageGroup.POST("/hide")
+				videoManageGroup.POST("/hide", controller.HideVideo)
 				videoManageGroup.POST("/upload", controller.UploadVideo)
-				videoManageGroup.PUT("/update")
-				videoManageGroup.DELETE("/remove")
+				videoManageGroup.POST("/update", controller.UpdateVideoInfo)
+				videoManageGroup.POST("/remove", controller.RemoveVideo)
+				videoManageGroup.POST("/reSubmit", controller.ReSubmitVideo)
+				videoManageGroup.POST("/show", controller.ShowVideo)
 			}
 
 			// 弹幕发射逻辑使用websocket，本接口用户DB数据初始化

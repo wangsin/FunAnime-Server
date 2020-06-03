@@ -24,8 +24,6 @@ func BuildResponse(user *model.User, token string) *InfoResponse {
 		UserName:   user.Username,
 		Phone:      user.Phone,
 		NickName:   user.Nickname,
-		Exp:        user.ExpCount,
-		Level:      user.Level,
 		UserId:     user.Id,
 		Status:     user.Status,
 		Mail:       user.Mail,

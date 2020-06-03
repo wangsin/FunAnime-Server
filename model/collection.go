@@ -1,12 +1,14 @@
 package model
 
 import (
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
 const FaCollectionTableName = "fa_collection"
 
 const FaCollectionNormalStatus = 1
+const FaCollectionDeleteStatus = -1
 
 type FaCollection struct {
 	Id            int64     `json:"id" gorm:"column:id"`
@@ -40,4 +42,16 @@ func GetCollectionByWhereMap(whereMap map[string]interface{}, whereText string, 
 	db.Count(&count)
 	err = db.Offset((page - 1) * size).Limit(size).Order(order).Find(&videoList).Error
 	return videoList, count, err
+}
+
+func CreateCollectionByInstance(tx *gorm.DB, instance *FaCollection) error {
+	return tx.Debug().Table(FaCollectionTableName).Create(instance).Error
+}
+
+func UpdateCollectionById(tx *gorm.DB, id int64, updateMap map[string]interface{}) error {
+	return tx.Debug().Table(FaCollectionTableName).Where(map[string]interface{}{"id": id}).Update(updateMap).Error
+}
+
+func UpdateCollectionByMap(tx *gorm.DB, whereMap, updateMap map[string]interface{}) error {
+	return tx.Debug().Table(FaCollectionTableName).Where(whereMap).Update(updateMap).Error
 }

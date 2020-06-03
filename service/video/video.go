@@ -37,7 +37,7 @@ func GetVideoList(req *requestVideo.GetVideoListForOuter) ([]*model.FaVideo, int
 func GetFixUserVideoList(userInfo *token.UserInfo, page, size int) ([]*model.FaVideo, int64, int64) {
 	videoList, count, err := model.GetVideoList(map[string]interface{}{
 		"creator=?": userInfo.UserId,
-		"status>?": -1,
+		"status>?":  -1,
 	}, "", page, size, "create_time desc")
 	if err != nil {
 		logger.Error("get_video_list_failed", logger.Fields{"err": err})
@@ -124,7 +124,7 @@ func UploadVideo(req *requestVideo.UploadRequest) int64 {
 		CategoryNextLevelDesc: req.CategoryNextDesc,
 		CoverImg:              req.CoverImg,
 		Creator:               req.UserInfo.UserId,
-		Status:                model.FaVideoNormal,
+		Status:                model.FaVideoAuditing,
 		PassTime:              time.Now(),
 		CreateTime:            time.Now(),
 		ModifyTime:            time.Now(),
@@ -159,4 +159,59 @@ func GetBarrageList(id int64) ([]*model.FaBarrage, int64) {
 	}
 
 	return barrageList, errno.Success
+}
+
+func VideoStatusTrans(req *requestVideo.CreateCollection, status int) int64 {
+	db, err := model.GetDatabaseConnection()
+	if err != nil {
+		logger.Error("get_db_conn_failed", logger.Fields{"err": err})
+		return errno.DBOpError
+	}
+
+	tx := db.Begin()
+	err = model.UpdateVideoWithTrans(tx,
+		map[string]interface{}{
+			"id": req.VideoId,
+		},
+		map[string]interface{}{
+			"status":      status,
+			"modify_time": time.Now(),
+		}, 1)
+	if err != nil {
+		logger.Error("trans_video_failed", logger.Fields{"err": err})
+		tx.Rollback()
+		return errno.DBOpError
+	}
+	tx.Commit()
+
+	return errno.Success
+}
+
+func UpdateVideoInfo(req *requestVideo.UpdateVideoInfo) int64 {
+	db, err := model.GetDatabaseConnection()
+	if err != nil {
+		logger.Error("get_db_conn_failed", logger.Fields{"err": err})
+		return errno.DBOpError
+	}
+
+	tx := db.Begin()
+	err = model.UpdateVideoWithTrans(tx,
+		map[string]interface{}{
+			"id":     req.VideoId,
+			"status": model.FaVideoNormal,
+		},
+		map[string]interface{}{
+			"video_name":  req.VideoName,
+			"video_desc":  req.VideoDesc,
+			"status":      model.FaVideoAuditing,
+			"modify_time": time.Now(),
+		}, 1)
+	if err != nil {
+		logger.Error("trans_video_failed", logger.Fields{"err": err})
+		tx.Rollback()
+		return errno.DBOpError
+	}
+	tx.Commit()
+
+	return errno.Success
 }

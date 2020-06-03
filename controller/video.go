@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"sinblog.cn/FunAnime-Server/model"
 	"sinblog.cn/FunAnime-Server/serializable/request/user"
 	"sinblog.cn/FunAnime-Server/serializable/request/video"
 	responseVideo "sinblog.cn/FunAnime-Server/serializable/response/video"
@@ -101,6 +102,101 @@ func UploadVideo(ctx *gin.Context) {
 	return
 }
 
+func HideVideo(ctx *gin.Context) {
+	req := &video.CreateCollection{}
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("hide_video_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.VideoStatusTrans(req, model.FaVideoHide)
+	if checkNo != errno.Success {
+		logger.Error("hide_video_failed", logger.Fields{"err": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, gin.H{})
+	return
+}
+
+func ShowVideo(ctx *gin.Context) {
+	req := &video.CreateCollection{}
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("hide_video_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.VideoStatusTrans(req, model.FaVideoNormal)
+	if checkNo != errno.Success {
+		logger.Error("hide_video_failed", logger.Fields{"err": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, gin.H{})
+	return
+}
+
+func RemoveVideo(ctx *gin.Context) {
+	req := &video.CreateCollection{}
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("hide_video_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.VideoStatusTrans(req, model.FaVideoDeleter)
+	if checkNo != errno.Success {
+		logger.Error("hide_video_failed", logger.Fields{"err": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, gin.H{})
+	return
+}
+
+func UpdateVideoInfo(ctx *gin.Context) {
+	req := &video.UpdateVideoInfo{}
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("update_video_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.UpdateVideoInfo(req)
+	if checkNo != errno.Success {
+		logger.Error("update_video_info_failed", logger.Fields{"err": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, gin.H{})
+	return
+}
+
+func ReSubmitVideo(ctx *gin.Context) {
+	req := &video.CreateCollection{}
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("hide_video_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.VideoStatusTrans(req, model.FaVideoAuditing)
+	if checkNo != errno.Success {
+		logger.Error("hide_video_failed", logger.Fields{"err": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+	common.EchoSuccessJson(ctx, gin.H{})
+	return
+}
+
 func GetManageVideoList(ctx *gin.Context) {
 	loginInfo := user.GetUserInfoFromContext(ctx)
 	fmt.Println(loginInfo)
@@ -132,4 +228,50 @@ func GetBarrageList(ctx *gin.Context) {
 
 	common.EchoBaseJson(ctx, http.StatusOK, errno.Success, responseVideo.BuildBarrageArrayResp(barrage))
 	return
+}
+
+func GetCollectList(ctx *gin.Context) {
+	req := new(video.GetVideoListForCollection)
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("params_error_at_GetCollectList", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	list, count, checkNo := serviceVideo.GetUserCollection(req)
+	if checkNo != errno.Success {
+		logger.Warn("get_user_collection_failed", logger.Fields{"checkNo": checkNo})
+		common.EchoFailedJson(ctx, checkNo)
+		return
+	}
+
+	common.EchoBaseJson(ctx, http.StatusOK, errno.Success, responseVideo.FormatCollectListResponse(list, req.Page, req.Size, count))
+	return
+}
+
+func CreateCollection(ctx *gin.Context) {
+	req := new(video.CreateCollection)
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("create_collection_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.CreateUserCollection(req)
+	common.EchoBaseJson(ctx, http.StatusOK, checkNo, gin.H{})
+}
+
+func RemoveCollection(ctx *gin.Context) {
+	req := new(video.RemoveCollection)
+	err := req.GetRequest(ctx)
+	if err != nil {
+		logger.Warn("remove_collection_failed", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	checkNo := serviceVideo.RemoveUserCollection(req)
+	common.EchoBaseJson(ctx, http.StatusOK, checkNo, gin.H{})
 }

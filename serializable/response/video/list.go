@@ -14,6 +14,7 @@ type VideoInfo struct {
 	Volume  string `json:"volume"`
 	Date    string `json:"date"`
 	VideoId int64  `json:"video_id"`
+	Desc    string `json:"video_desc"`
 	Status  int    `json:"status"`
 }
 
@@ -56,6 +57,7 @@ func BuildVideoManageListResponse(videoList []*model.FaVideo, page int, size int
 			Date:    video.PassTime.Format(consts.TimeFormatYMDHM),
 			VideoId: video.Id,
 			Status:  video.Status,
+			Desc:    video.VideoDesc,
 		}
 	}
 

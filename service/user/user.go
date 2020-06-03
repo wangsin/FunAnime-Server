@@ -1,7 +1,6 @@
 package serviceUser
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/mervick/aes-everywhere/go/aes256"
 	"github.com/spf13/viper"
@@ -61,8 +60,6 @@ func RegisterUser(userRequest *reqUser.RegisterRequestInfo) int64 {
 		Password:   password,
 		Phone:      userRequest.Phone,
 		Sex:        model.NotCommit,
-		Level:      0,
-		ExpCount:   0,
 		Status:     model.UserNotActive,
 		Birthday:   consts.ZeroTime,
 		CreateTime: time.Now(),
@@ -112,9 +109,7 @@ func SendSmsCode(request *reqUser.SendSmsRequest) error {
 
 func checkPasswordRight(requestPassword, dbPassword string) bool {
 	key := viper.GetString("secret_key.password_key")
-	fmt.Println(aes256.Decrypt(requestPassword, key))
-	fmt.Println(aes256.Decrypt(dbPassword, key))
-	return aes256.Decrypt(requestPassword, key) == aes256.Decrypt(dbPassword, key)
+	return requestPassword == aes256.Decrypt(dbPassword, key)
 }
 
 func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, *model.User, int64) {
@@ -156,11 +151,9 @@ func LoginUser(userRequest *reqUser.LoginRequestInfo) (string, *model.User, int6
 
 	tokenUserInfo := &token.UserInfo{
 		UserId:   userInfo.Id,
-		Level:    userInfo.Level,
 		Phone:    userInfo.Phone,
 		Nickname: userInfo.Nickname,
 		Username: userInfo.Username,
-		Exp:      userInfo.ExpCount,
 	}
 
 	tokenUserInfo.ExpiresAt = time.Now().AddDate(0, 0, 15).Unix()

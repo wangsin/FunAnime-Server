@@ -27,8 +27,6 @@ type User struct {
 	Password          string    `gorm:"column:password"`
 	Phone             string    `gorm:"column:phone"`
 	Sex               int8      `gorm:"column:sex"`
-	Level             int       `gorm:"column:level"`
-	ExpCount          int64     `gorm:"column:exp"`
 	Mail              string    `gorm:"column:mail"`
 	Birthday          time.Time `gorm:"column:birthday"`
 	Avatar            string    `gorm:"column:avatar"`
