@@ -9,9 +9,10 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/gorm v1.9.12
-	github.com/krilie/s-file v0.0.0-20190907034457-025cf670da7e
 	github.com/mervick/aes-everywhere/go/aes256 v0.0.0-20190915194129-5b0078aa579b
-	github.com/pkg/errors v0.8.0
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/onsi/ginkgo v1.13.0 // indirect
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/viper v1.6.2
 	github.com/tencentcloud/tencentcloud-sdk-go v3.0.121+incompatible
