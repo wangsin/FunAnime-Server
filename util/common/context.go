@@ -12,6 +12,10 @@ type RespFormat struct {
 	Data   gin.H  `json:"data"`
 }
 
+func Echo(ctx *gin.Context, code int, data gin.H) {
+	ctx.JSON(code, data)
+}
+
 func EchoJson(ctx *gin.Context, code int, errNo int64, data gin.H) {
 	errMsg := "未知错误"
 	if msg, ok := errno.ErrmsgMap[errNo]; ok {

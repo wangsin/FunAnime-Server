@@ -3,9 +3,11 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	request "sinblog.cn/FunAnime-Server/serializable/request"
+	"sinblog.cn/FunAnime-Server/serializable/request"
+	requestFeishu "sinblog.cn/FunAnime-Server/serializable/request/feishu"
 	"sinblog.cn/FunAnime-Server/serializable/response"
 	"sinblog.cn/FunAnime-Server/service/config"
+	serviceFeishu "sinblog.cn/FunAnime-Server/service/feishu"
 	"sinblog.cn/FunAnime-Server/util/common"
 	"sinblog.cn/FunAnime-Server/util/errno"
 	"sinblog.cn/FunAnime-Server/util/logger"
@@ -47,4 +49,24 @@ func SetBasicConfig(ctx *gin.Context) {
 	}
 
 	common.EchoSuccessJson(ctx, map[string]interface{}{})
+}
+
+func FeishuCallbackFunc(ctx *gin.Context) {
+	r := new(requestFeishu.EventCallbackRequest)
+	err := r.GetRequest(ctx)
+	if err != nil {
+		logger.Error("get_request_data_failed_at_FeishuCallbackFunc", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.ParamsError)
+		return
+	}
+
+	// service
+	result, err := serviceFeishu.DispatchCallbackByType(r)
+	if err != nil {
+		logger.Error("get_request_data_failed_at_FeishuCallbackFunc", logger.Fields{"err": err})
+		common.EchoFailedJson(ctx, errno.UnknownError)
+		return
+	}
+
+	common.Echo(ctx, http.StatusOK, result)
 }

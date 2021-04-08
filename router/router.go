@@ -12,6 +12,7 @@ func NewRouter() *gin.Engine {
 	OuterRouter(r)
 	InnerRouter(r)
 	TestRouter(r)
+	FeishuRouter(r)
 
 	return r
 }
